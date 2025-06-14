@@ -119,8 +119,8 @@ const getRandomFutureReminderTime = (startDay: number): Date => {
   const now = new Date();
   const nowDay = dateToDay(now);
 
-  let startHour = parseInt(import.meta.env.REACT_APP_NOTIFICATION_START_HOUR || '8');
-  const endHour = parseInt(import.meta.env.REACT_APP_NOTIFICATION_END_HOUR || '17');
+  let startHour = parseInt(import.meta.env.VITE_NOTIFICATION_START_HOUR || '8');
+  const endHour = parseInt(import.meta.env.VITE_NOTIFICATION_END_HOUR || '17');
 
   if (nowDay >= startDay) {
     startDay = nowDay;

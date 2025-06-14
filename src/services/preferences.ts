@@ -89,8 +89,7 @@ export const addRecentReminder = async (reminder: Reminder) => {
   const recentReminders = await getRecentReminders();
   recentReminders.push(reminder);
   if (
-    recentReminders.length >
-    parseInt(import.meta.env.REACT_APP_MAX_RECENT_REMINDERS || '10')
+    recentReminders.length > parseInt(import.meta.env.VITE_MAX_RECENT_REMINDERS || '10')
   ) {
     recentReminders.shift();
   }
