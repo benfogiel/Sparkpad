@@ -1,13 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Redirect, Route } from 'react-router-dom';
 import { IonApp, IonRouterOutlet, setupIonicReact } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
+import { useAuthState } from 'react-firebase-hooks/auth';
 
 import ViewCategories from './pages/ViewCategories';
 import ViewReminders from './pages/ViewReminders';
-
-import ViewWelcome from './pages/ViewWelcome';
-import { getFirstName, getReminders, setReminders } from './services/preferences';
+import Auth from './pages/Auth';
+import Settings from './pages/Settings';
+import { auth } from './firebase';
+import { getReminders, setReminders } from './services/preferences';
 import { getDefaultReminders } from './data/reminders';
 
 /* Core CSS required for Ionic components to work properly */
@@ -43,8 +45,7 @@ import './theme/variables.css';
 setupIonicReact();
 
 const App: React.FC = () => {
-  const [firstName, setFirstName] = useState<string>('');
-  const [isLoading, setIsLoading] = useState(true);
+  const [user, loading] = useAuthState(auth);
 
   useEffect(() => {
     const loadReminders = async () => {
@@ -55,14 +56,7 @@ const App: React.FC = () => {
       }
     };
 
-    const loadFirstName = async () => {
-      const firstName = await getFirstName();
-      setFirstName(firstName);
-      setIsLoading(false);
-    };
-
     loadReminders();
-    loadFirstName();
   }, []);
 
   return (
@@ -70,20 +64,23 @@ const App: React.FC = () => {
       <IonReactRouter>
         <IonRouterOutlet>
           <Route path="/" exact={true}>
-            {isLoading ? null : firstName ? (
+            {loading ? null : user ? (
               <Redirect to="/reminders-view" />
             ) : (
-              <Redirect to="/welcome-view" />
+              <Redirect to="/auth" />
             )}
           </Route>
-          <Route path="/welcome-view" exact={true}>
-            <ViewWelcome />
+          <Route path="/auth" exact={true}>
+            <Auth />
           </Route>
           <Route path="/categories-view" exact={true}>
             <ViewCategories />
           </Route>
           <Route path="/reminders-view" exact={true}>
             <ViewReminders />
+          </Route>
+          <Route path="/settings" exact={true}>
+            <Settings />
           </Route>
         </IonRouterOutlet>
       </IonReactRouter>

@@ -14,6 +14,7 @@ import {
   IonHeader,
 } from '@ionic/react';
 
+import { auth } from '../firebase';
 import { Reminder } from '../data/reminders';
 import AddReminder from '../components/AddReminder';
 import { ReminderList } from '../components/ReminderList';
@@ -21,7 +22,6 @@ import { settingsOutline } from 'ionicons/icons';
 import {
   addReminder,
   deleteReminder,
-  getFirstName,
   getUserSelectedCategories,
   getRecentReminders,
   firstReminderSent,
@@ -30,6 +30,7 @@ import {
 } from '../services/preferences';
 import { scheduleReminder, rescheduleReminders } from '../services/notifications';
 import { requestNotificationPermissions } from '../services/notifications';
+import { getUser } from '../services/firebaseDB';
 
 const ViewReminders: React.FC = () => {
   const router = useIonRouter();
@@ -49,8 +50,11 @@ const ViewReminders: React.FC = () => {
   };
 
   const loadFirstName = async () => {
-    const firstName = await getFirstName();
-    setFirstName(firstName);
+    const user = auth.currentUser;
+    if (user) {
+      const userData = await getUser(user.uid);
+      setFirstName(userData?.firstName || '');
+    }
   };
 
   const setupNotifications = async () => {
@@ -111,7 +115,7 @@ const ViewReminders: React.FC = () => {
           </IonText>
           <IonIcon
             icon={settingsOutline}
-            onClick={() => router.push('/categories-view')}
+            onClick={() => router.push('/settings')}
             style={{ fontSize: '22px' }}
           />
         </div>

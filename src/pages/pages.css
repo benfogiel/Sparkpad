@@ -12,6 +12,11 @@
   align-items: center;
 }
 
+.input-field {
+  --background: var(--ion-overlay-background-color);
+  --border-radius: 12px;
+}
+
 /* ViewReminders */
 
 #reminders-view ion-content {
@@ -44,21 +49,27 @@
   --background: var(--ion-overlay-background-color);
 }
 
-/* ViewWelcome */
+/* Auth */
 
-#welcome-view .name-input-container {
-  display: flex;
-  flex-direction: column;
+#auth-view .login-container {
   height: 100%;
   width: 100%;
+  padding-bottom: 20vh;
+  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  text-align: center;
-  padding-bottom: 20vh;
 }
 
-#welcome-view ion-input {
-  --background: var(--ion-overlay-background-color);
-  --border-radius: 20px;
-  max-width: 80%;
+#auth-view ion-item {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+#auth-view ion-input {
+  --padding-start: 16px;
+}
+
+#auth-view .button {
+  width: 90%;
 }
