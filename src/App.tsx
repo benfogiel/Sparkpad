@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Redirect, Route } from 'react-router-dom';
 import { IonApp, IonRouterOutlet, setupIonicReact } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
@@ -9,8 +9,6 @@ import ViewReminders from './pages/ViewReminders';
 import Auth from './pages/Auth';
 import Settings from './pages/Settings';
 import { auth } from './firebase';
-import { getReminders, setReminders } from './services/preferences';
-import { getDefaultReminders } from './data/reminders';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -46,18 +44,6 @@ setupIonicReact();
 
 const App: React.FC = () => {
   const [user, loading] = useAuthState(auth);
-
-  useEffect(() => {
-    const loadReminders = async () => {
-      const reminders = await getReminders();
-      if (reminders.length === 0) {
-        const defaultReminders = getDefaultReminders();
-        await setReminders(defaultReminders);
-      }
-    };
-
-    loadReminders();
-  }, []);
 
   return (
     <IonApp>

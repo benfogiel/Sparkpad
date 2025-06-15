@@ -6,10 +6,6 @@ export interface Reminder {
   category: string;
 }
 
-export const isEqual = (a: Reminder, b: Reminder) => {
-  return a.quote === b.quote && a.category === b.category;
-};
-
 const defaultReminders: { [key: string]: string[] } = {
   Motivational: [
     'The only way to do great work is to love what you do.',
@@ -27,6 +23,7 @@ export const getDefaultReminders = (): Reminder[] => {
   const reminders: Reminder[] = [];
   for (const [category, quotes] of Object.entries(defaultReminders)) {
     for (const quote of quotes) {
+      // TODO: add static id to each reminder so it's consistent across calls
       reminders.push({ id: uuidv4(), quote, category });
     }
   }

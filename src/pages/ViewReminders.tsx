@@ -14,15 +14,11 @@ import {
   IonHeader,
 } from '@ionic/react';
 
-import { auth } from '../firebase';
 import { Reminder } from '../data/reminders';
 import AddReminder from '../components/AddReminder';
 import { ReminderList } from '../components/ReminderList';
 import { settingsOutline } from 'ionicons/icons';
 import {
-  addReminder,
-  deleteReminder,
-  getUserSelectedCategories,
   getRecentReminders,
   firstReminderSent,
   setFirstReminderSent,
@@ -30,7 +26,12 @@ import {
 } from '../services/preferences';
 import { scheduleReminder, rescheduleReminders } from '../services/notifications';
 import { requestNotificationPermissions } from '../services/notifications';
-import { getUser } from '../services/firebaseDB';
+import {
+  getUser,
+  addReminder,
+  deleteReminder,
+  getSelectedCategories,
+} from '../services/firebaseDB';
 
 const ViewReminders: React.FC = () => {
   const router = useIonRouter();
@@ -45,16 +46,13 @@ const ViewReminders: React.FC = () => {
   };
 
   const loadSelectedCategories = async () => {
-    const selectedCategories = await getUserSelectedCategories();
+    const selectedCategories = await getSelectedCategories();
     setCategories(selectedCategories);
   };
 
   const loadFirstName = async () => {
-    const user = auth.currentUser;
-    if (user) {
-      const userData = await getUser(user.uid);
-      setFirstName(userData?.firstName || '');
-    }
+    const userData = await getUser();
+    setFirstName(userData?.firstName || '');
   };
 
   const setupNotifications = async () => {
@@ -98,7 +96,7 @@ const ViewReminders: React.FC = () => {
   };
 
   const handleDeleteReminder = async (reminder: Reminder) => {
-    await deleteReminder(reminder);
+    await deleteReminder(reminder.id);
     await loadRecentReminders();
     await rescheduleReminders();
   };
@@ -130,7 +128,7 @@ const ViewReminders: React.FC = () => {
           <AddReminder categories={categories} addReminder={handleAddReminder} />
 
           <IonText>
-            <h5>Past Reminders</h5>
+            <h5>Notified Reminders</h5>
           </IonText>
 
           <ReminderList

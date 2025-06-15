@@ -1,7 +1,5 @@
 import { LocalNotifications } from '@capacitor/local-notifications';
 import {
-  getReminders,
-  getUserSelectedCategories,
   getRecentReminders,
   setScheduledReminders,
   getScheduledReminders,
@@ -9,6 +7,7 @@ import {
 } from './preferences';
 import { Reminder } from '../data/reminders';
 import { addDays, dateToDay, dayToDate } from '../util';
+import { getReminders, getSelectedCategories } from './firebaseDB';
 
 export interface ScheduledReminder {
   notificationId: number;
@@ -142,7 +141,7 @@ const getRandomFutureReminderTime = (startDay: number): Date => {
 // Select random reminder
 const getRandomReminder = async (excludeIds: string[] = []) => {
   let reminders = await getReminders();
-  const userSelectedCategories = await getUserSelectedCategories();
+  const userSelectedCategories = await getSelectedCategories();
   reminders = reminders.filter(
     (reminder) =>
       userSelectedCategories.includes(reminder.category) &&

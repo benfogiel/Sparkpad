@@ -23,7 +23,8 @@ import {
 import { auth } from '../firebase';
 import { logoGoogle } from 'ionicons/icons';
 
-import { addUser, getUser } from '../services/firebaseDB';
+import { addReminder, addUser, getUser } from '../services/firebaseDB';
+import { getDefaultReminders } from '../data/reminders';
 
 const Auth: React.FC = () => {
   const [email, setEmail] = useState<string>('');
@@ -32,13 +33,20 @@ const Auth: React.FC = () => {
   const [toggleSignIn, setToggleSignIn] = useState<boolean>(false);
   const router = useIonRouter();
 
+  const createUser = async (firstName: string) => {
+    await addUser(firstName);
+    const reminders = getDefaultReminders();
+    for (const reminder of reminders) {
+      await addReminder(reminder);
+    }
+    router.push('/categories-view');
+  };
+
   const signUp = async (): Promise<void> => {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       console.debug('User created:', userCredential.user.uid);
-      const user = userCredential.user;
-      await addUser(user.uid, firstName);
-      router.push('/categories-view');
+      await createUser(firstName);
     } catch (error) {
       const authError = error as AuthError;
       console.error('Sign-up error:', authError.message);
@@ -61,13 +69,12 @@ const Auth: React.FC = () => {
     try {
       const userCredential = await signInWithPopup(auth, provider);
       console.debug('User signed in:', userCredential.user.uid);
-      const user = await getUser(userCredential.user.uid);
+      const user = await getUser();
       if (user) {
         router.push('/reminders-view');
       } else {
         const firstName = userCredential.user.displayName?.split(' ')[0] || '';
-        await addUser(userCredential.user.uid, firstName);
-        router.push('/categories-view');
+        await createUser(firstName);
       }
     } catch (err) {
       const authError = err as AuthError;

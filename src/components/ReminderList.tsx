@@ -43,7 +43,7 @@ export const ReminderList: React.FC<ReminderListProps> = ({
         </IonList>
       ) : (
         <IonText className="text-center">
-          <p>No reminders yet</p>
+          <p>No reminders notified yet</p>
         </IonText>
       )}
 
