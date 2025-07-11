@@ -7,8 +7,9 @@ import {
   deleteDoc,
   updateDoc,
 } from 'firebase/firestore';
+import { getToken } from 'firebase/messaging';
 
-import { db, auth } from '../firebase';
+import { db, auth, messaging } from '../firebase';
 import { Reminder } from '../data/reminders';
 
 const assertUser = () => {
@@ -26,8 +27,15 @@ export const getUser = async () => {
 
 export const addUser = async (firstName: string) => {
   assertUser();
+  const fcmToken = await getToken(messaging);
   const docRef = doc(db, 'users', auth.currentUser!.uid);
-  await setDoc(docRef, { firstName, createdAt: new Date(), selectedCategories: [] });
+  await setDoc(docRef, {
+    firstName,
+    fcmToken: fcmToken,
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    createdAt: new Date(),
+    selectedCategories: [],
+  });
 };
 
 export const getReminders = async () => {
