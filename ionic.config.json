@@ -1,5 +1,7 @@
 {
-  "name": "New Ionic App",
-  "integrations": {},
-  "type": "react"
+  "name": "reemind",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react-vite"
 }
