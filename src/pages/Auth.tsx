@@ -31,6 +31,7 @@ const Auth: React.FC = () => {
   const [password, setPassword] = useState<string>('');
   const [firstName, setFirstName] = useState<string>('');
   const [toggleSignIn, setToggleSignIn] = useState<boolean>(false);
+  const [errorLabel, setErrorLabel] = useState<string>('');
   const router = useIonRouter();
 
   const createUser = async (firstName: string) => {
@@ -50,6 +51,15 @@ const Auth: React.FC = () => {
     } catch (error) {
       const authError = error as AuthError;
       console.error('Sign-up error:', authError.message);
+      if (authError.code == 'auth/email-already-in-use') {
+        setErrorLabel('Email already in use');
+      } else if (authError.code == 'auth/invalid-email') {
+        setErrorLabel('Invalid email');
+      } else if (authError.code == 'auth/weak-password') {
+        setErrorLabel('Password must be at least 6 characters long');
+      } else {
+        setErrorLabel(authError.message.replace('Firebase: ', ''));
+      }
     }
   };
 
@@ -61,6 +71,11 @@ const Auth: React.FC = () => {
     } catch (error) {
       const authError = error as AuthError;
       console.error('Sign-in error:', authError.message);
+      if (authError.code == 'auth/invalid-credential') {
+        setErrorLabel('Invalid email or password');
+      } else {
+        setErrorLabel(authError.message.replace('Firebase: ', ''));
+      }
     }
   };
 
@@ -85,7 +100,7 @@ const Auth: React.FC = () => {
   return (
     <IonPage id="auth-view">
       <IonHeader>
-        <div className="page-header">Welcome!</div>
+        <div className="page-header">Welcome to Sparkpad!</div>
       </IonHeader>
 
       <IonContent fullscreen className="ion-padding">
@@ -117,6 +132,7 @@ const Auth: React.FC = () => {
               placeholder="Password"
             />
           </IonItem>
+          {errorLabel && <IonText color="danger">{errorLabel}</IonText>}
           {!toggleSignIn && (
             <IonButton className="button" expand="block" onClick={signUp} color="dark">
               Sign Up
