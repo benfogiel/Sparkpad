@@ -14,6 +14,7 @@ import {
   IonItem,
 } from '@ionic/react';
 
+import { FirebaseAuthentication as fireAuth } from '@capacitor-firebase/authentication';
 import { auth } from '../firebase';
 
 const Settings: React.FC = () => {
@@ -40,8 +41,9 @@ const Settings: React.FC = () => {
           className="bottom-button"
           color="dark"
           expand="block"
-          onClick={() => {
-            auth.signOut();
+          onClick={async () => {
+            await fireAuth.signOut();
+            await auth.signOut();
             router.push('/auth');
           }}
         >

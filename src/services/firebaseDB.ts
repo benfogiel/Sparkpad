@@ -8,8 +8,11 @@ import {
   updateDoc,
 } from 'firebase/firestore';
 import { getToken } from 'firebase/messaging';
+import { FirebaseMessaging } from '@capacitor-firebase/messaging';
+import { Capacitor } from '@capacitor/core';
+import { auth } from '../firebase';
 
-import { db, auth, messaging } from '../firebase';
+import { db, messaging } from '../firebase';
 import { Reminder } from '../data/reminders';
 
 const assertUser = () => {
@@ -27,7 +30,19 @@ export const getUser = async () => {
 
 export const addUser = async (firstName: string) => {
   assertUser();
-  const fcmToken = await getToken(messaging);
+  let fcmToken = '';
+
+  try {
+    if (Capacitor.isNativePlatform()) {
+      const { token } = await FirebaseMessaging.getToken();
+      fcmToken = token;
+    } else if (messaging) {
+      fcmToken = await getToken(messaging);
+    }
+  } catch (error) {
+    console.error('Error getting FCM token:', error);
+  }
+
   const docRef = doc(db, 'users', auth.currentUser!.uid);
   await setDoc(docRef, {
     firstName,

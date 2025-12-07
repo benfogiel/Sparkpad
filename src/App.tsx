@@ -1,6 +1,6 @@
 import React from 'react';
 import { Redirect, Route } from 'react-router-dom';
-import { IonApp, IonRouterOutlet, setupIonicReact } from '@ionic/react';
+import { IonApp, IonLoading, IonRouterOutlet, setupIonicReact } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import { useAuthState } from 'react-firebase-hooks/auth';
 
@@ -43,14 +43,28 @@ import './theme/variables.css';
 setupIonicReact();
 
 const App: React.FC = () => {
-  const [user, loading] = useAuthState(auth);
+  const [user, loading, error] = useAuthState(auth);
+
+  React.useEffect(() => {
+    if (loading) {
+      console.log('AuthState loading...');
+    }
+    if (user) {
+      console.log('AuthState user loaded:', user.uid);
+    }
+    if (error) {
+      console.error('AuthState error:', error);
+    }
+  }, [user, loading, error]);
 
   return (
     <IonApp>
       <IonReactRouter>
         <IonRouterOutlet>
           <Route path="/" exact={true}>
-            {loading ? null : user ? (
+            {loading ? (
+              <IonLoading isOpen={true} message="Loading..." />
+            ) : user ? (
               <Redirect to="/reminders-view" />
             ) : (
               <Redirect to="/auth" />
