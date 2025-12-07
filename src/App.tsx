@@ -57,30 +57,32 @@ const App: React.FC = () => {
     }
   }, [user, loading, error]);
 
+  if (loading) {
+    return (
+      <IonApp>
+        <IonLoading isOpen={true} message="Loading..." />
+      </IonApp>
+    );
+  }
+
   return (
     <IonApp>
       <IonReactRouter>
         <IonRouterOutlet>
           <Route path="/" exact={true}>
-            {loading ? (
-              <IonLoading isOpen={true} message="Loading..." />
-            ) : user ? (
-              <Redirect to="/reminders-view" />
-            ) : (
-              <Redirect to="/auth" />
-            )}
+            {user ? <Redirect to="/reminders-view" /> : <Redirect to="/auth" />}
           </Route>
           <Route path="/auth" exact={true}>
-            <Auth />
+            {user ? <Redirect to="/reminders-view" /> : <Auth />}
           </Route>
           <Route path="/categories-view" exact={true}>
-            <ViewCategories />
+            {user ? <ViewCategories /> : <Redirect to="/auth" />}
           </Route>
           <Route path="/reminders-view" exact={true}>
-            <ViewReminders />
+            {user ? <ViewReminders /> : <Redirect to="/auth" />}
           </Route>
           <Route path="/settings" exact={true}>
-            <Settings />
+            {user ? <Settings /> : <Redirect to="/auth" />}
           </Route>
         </IonRouterOutlet>
       </IonReactRouter>
