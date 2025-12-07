@@ -1,4 +1,4 @@
-import { LocalNotifications } from '@capacitor/local-notifications';
+import { FirebaseMessaging } from '@capacitor-firebase/messaging';
 import {
   getRecentReminders,
   setScheduledReminders,
@@ -16,12 +16,17 @@ export interface ScheduledReminder {
 }
 
 export const requestNotificationPermissions = async () => {
-  const { display } = await LocalNotifications.requestPermissions();
-  if (display !== 'granted') {
-    console.warn('Notification permissions denied');
+  try {
+    const result = await FirebaseMessaging.requestPermissions();
+    if (result.receive !== 'granted') {
+      console.warn('Notification permissions denied');
+      return false;
+    }
+    return true;
+  } catch (error) {
+    console.error('Error requesting notification permissions:', error);
     return false;
   }
-  return true;
 };
 
 export const rescheduleReminders = async (quantity: number = 30) => {
