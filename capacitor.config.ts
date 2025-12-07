@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'reemind.app',
-  appName: 'reemind',
+  appId: 'app.sparkpad',
+  appName: 'Sparkpad',
   webDir: 'dist',
   plugins: {
     FirebaseAuthentication: {
