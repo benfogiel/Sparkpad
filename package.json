@@ -6,19 +6,21 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "build:ios": "ionic cap sync && ionic cap open ios",
     "preview": "vite preview",
     "test.e2e": "cypress run",
     "test.unit": "vitest",
-    "lint": "eslint",
-    "lint:fix": "eslint --fix"
+    "lint": "eslint && cd functions && npm run lint",
+    "lint:fix": "eslint --fix && cd functions && npm run lint:fix"
   },
   "dependencies": {
+    "@capacitor-firebase/authentication": "^7.4.0",
+    "@capacitor-firebase/messaging": "^7.3.1",
     "@capacitor/app": "7.0.0",
     "@capacitor/core": "^7.0.1",
     "@capacitor/haptics": "7.0.0",
     "@capacitor/ios": "7.0.1",
     "@capacitor/keyboard": "7.0.0",
-    "@capacitor/local-notifications": "^7.0.1",
     "@capacitor/preferences": "^7.0.1",
     "@capacitor/status-bar": "7.0.0",
     "@ionic/react": "^8.0.0",
@@ -26,7 +28,7 @@
     "@types/react-router": "^5.1.20",
     "@types/react-router-dom": "^5.3.3",
     "audit": "^0.0.6",
-    "firebase": "^11.8.1",
+    "firebase": "^11.10.0",
     "fix": "^0.0.6",
     "ionicons": "^7.0.0",
     "react": "^18.2.0",

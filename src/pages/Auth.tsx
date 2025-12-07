@@ -14,17 +14,17 @@ import {
   useIonRouter,
 } from '@ionic/react';
 import {
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
   AuthError,
-  signInWithPopup,
+  signInWithEmailAndPassword,
+  signInWithCredential,
   GoogleAuthProvider,
 } from 'firebase/auth';
-import { auth } from '../firebase';
+import { FirebaseAuthentication as fireAuth } from '@capacitor-firebase/authentication';
 import { logoGoogle } from 'ionicons/icons';
 
 import { addReminder, addUser, getUser } from '../services/firebaseDB';
 import { getDefaultReminders } from '../data/reminders';
+import { auth } from '../firebase';
 
 const Auth: React.FC = () => {
   const [email, setEmail] = useState<string>('');
@@ -45,9 +45,16 @@ const Auth: React.FC = () => {
 
   const signUp = async (): Promise<void> => {
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      console.debug('User created:', userCredential.user.uid);
-      await createUser(firstName);
+      const userCredential = await fireAuth.createUserWithEmailAndPassword({
+        email,
+        password,
+      });
+      if (userCredential.user) {
+        console.debug('User created:', userCredential.user.uid);
+        // Sign in to JS SDK to ensure Firestore access works
+        await signInWithEmailAndPassword(auth, email, password);
+        await createUser(firstName);
+      }
     } catch (error) {
       const authError = error as AuthError;
       console.error('Sign-up error:', authError.message);
@@ -65,9 +72,18 @@ const Auth: React.FC = () => {
 
   const signIn = async (): Promise<void> => {
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      console.debug('User signed in:', userCredential.user.uid);
-      router.push('/reminders-view');
+      const userCredential = await fireAuth.signInWithEmailAndPassword({
+        email,
+        password,
+      });
+      if (userCredential.user) {
+        console.debug('User signed in:', userCredential.user.uid);
+        // Sign in to JS SDK to ensure Firestore access works
+        await signInWithEmailAndPassword(auth, email, password);
+        router.push('/reminders-view');
+      } else {
+        setErrorLabel('Invalid email or password');
+      }
     } catch (error) {
       const authError = error as AuthError;
       console.error('Sign-in error:', authError.message);
@@ -80,16 +96,25 @@ const Auth: React.FC = () => {
   };
 
   const googleSignIn = async () => {
-    const provider = new GoogleAuthProvider();
     try {
-      const userCredential = await signInWithPopup(auth, provider);
-      console.debug('User signed in:', userCredential.user.uid);
-      const user = await getUser();
-      if (user) {
-        router.push('/reminders-view');
-      } else {
-        const firstName = userCredential.user.displayName?.split(' ')[0] || '';
-        await createUser(firstName);
+      const result = await fireAuth.signInWithGoogle();
+      const idToken = result.credential?.idToken;
+      if (idToken) {
+        // Sync with JS SDK
+        const credential = GoogleAuthProvider.credential(idToken);
+        const userCredential = await signInWithCredential(auth, credential);
+
+        if (result.user) {
+          console.debug('User signed in:', result.user.uid);
+
+          const user = await getUser();
+          if (user) {
+            router.push('/reminders-view');
+          } else {
+            const firstName = userCredential.user.displayName?.split(' ')[0] || '';
+            await createUser(firstName);
+          }
+        }
       }
     } catch (err) {
       const authError = err as AuthError;
