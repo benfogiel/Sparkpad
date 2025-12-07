@@ -21,11 +21,7 @@ module.exports = {
     "/lib/**/*", // Ignore built files.
     "/generated/**/*", // Ignore generated files.
   ],
-  plugins: [
-    "@typescript-eslint",
-    "import",
-    "prettier",
-  ],
+  plugins: ["@typescript-eslint", "import", "prettier"],
   rules: {
     "quotes": ["error", "double"],
     "import/no-unresolved": 0,
@@ -42,6 +38,15 @@ module.exports = {
         ignoreComments: true,
         ignoreUrls: true,
         ignoreStrings: false,
+      },
+    ],
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      {
+        argsIgnorePattern: "^_",
+        varsIgnorePattern: "^_",
+        caughtErrorsIgnorePattern: "^_",
       },
     ],
   },
