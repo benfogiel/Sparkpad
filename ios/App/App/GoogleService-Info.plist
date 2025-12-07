@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>640792901653-607917f2vgcr87e5drcdukma3c319iva.apps.googleusercontent.com</string>
+	<string>640792901653-s6npssnqekssnc3kvvm57bcr4tro3bdl.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.640792901653-607917f2vgcr87e5drcdukma3c319iva</string>
+	<string>com.googleusercontent.apps.640792901653-s6npssnqekssnc3kvvm57bcr4tro3bdl</string>
 	<key>API_KEY</key>
 	<string>AIzaSyD9i5L3rMwFqnqpjgy-sv3E9CKw43meXxE</string>
 	<key>GCM_SENDER_ID</key>
@@ -13,7 +13,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>app.reemind</string>
+	<string>app.sparkpad</string>
 	<key>PROJECT_ID</key>
 	<string>reemind-1</string>
 	<key>STORAGE_BUCKET</key>
@@ -29,6 +29,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:640792901653:ios:99679a2eaf916f7491761c</string>
+	<string>1:640792901653:ios:5a792e0ce2683be491761c</string>
 </dict>
 </plist>
