@@ -34,8 +34,8 @@ function getRandomTime(
   const upperTotalMinutes = upperHours * 60 + upperMinutes;
 
   const randomMinutes =
-        Math.floor(Math.random() * (upperTotalMinutes - lowerTotalMinutes + 1)) +
-        lowerTotalMinutes;
+    Math.floor(Math.random() * (upperTotalMinutes - lowerTotalMinutes + 1)) +
+    lowerTotalMinutes;
 
   return {
     hours: Math.floor(randomMinutes / 60),
@@ -48,7 +48,7 @@ export const scheduleDailyReminder = onSchedule(
     schedule: "every 15 minutes",
     timeZone: "UTC",
   },
-  async (event) => {
+  async (_event) => {
     try {
       const now = DateTime.utc();
       const usersSnapshot = await db.collection("users").get();
@@ -84,9 +84,7 @@ export const scheduleDailyReminder = onSchedule(
           continue;
         }
 
-        const remindersSnapshot = await db
-          .collection(`users/${userId}/reminders`)
-          .get();
+        const remindersSnapshot = await db.collection(`users/${userId}/reminders`).get();
         if (remindersSnapshot.empty) {
           console.log(`No reminders found for user ${userId}`);
           continue;
@@ -139,15 +137,11 @@ export const scheduleDailyReminder = onSchedule(
                 .collection("users")
                 .doc(userId)
                 .update({
-                  lastNotificationDate:
-                                        Timestamp.fromDate(todayInUserTimezone),
+                  lastNotificationDate: Timestamp.fromDate(todayInUserTimezone),
                 });
             })
             .catch((error) => {
-              console.error(
-                `Error sending notification to user ${userId}:`,
-                error
-              );
+              console.error(`Error sending notification to user ${userId}:`, error);
             })
         );
       }
