@@ -10,9 +10,8 @@ import {
 import { getToken } from 'firebase/messaging';
 import { FirebaseMessaging } from '@capacitor-firebase/messaging';
 import { Capacitor } from '@capacitor/core';
-import { auth } from '../firebase';
 
-import { db, messaging } from '../firebase';
+import { db, auth, messaging } from '../firebase';
 import { Reminder } from '../data/reminders';
 
 const assertUser = () => {

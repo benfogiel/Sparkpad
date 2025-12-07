@@ -8,6 +8,7 @@ import {
 import { Reminder } from '../data/reminders';
 import { addDays, dateToDay, dayToDate } from '../util';
 import { getReminders, getSelectedCategories } from './firebaseDB';
+import { LocalNotifications } from '@capacitor/local-notifications';
 
 export interface ScheduledReminder {
   notificationId: number;
@@ -19,7 +20,12 @@ export const requestNotificationPermissions = async () => {
   try {
     const result = await FirebaseMessaging.requestPermissions();
     if (result.receive !== 'granted') {
-      console.warn('Notification permissions denied');
+      console.warn('Firebase notification permissions denied');
+      return false;
+    }
+    const { display } = await LocalNotifications.requestPermissions();
+    if (display !== 'granted') {
+      console.warn('Local notification permissions denied');
       return false;
     }
     return true;
@@ -71,8 +77,9 @@ export const cancelAllScheduledNotifications = async () => {
   }
 };
 
+// if reminderDate is null, send reminder immediately
 export const scheduleReminder = async (
-  reminderDate: Date
+  reminderDate: Date | null = null
 ): Promise<ScheduledReminder | null> => {
   // don't schedule a reminder if it's already scheduled
   const pendingNotifications = await LocalNotifications.getPending();
@@ -98,7 +105,7 @@ export const scheduleReminder = async (
         body: reminder.quote,
         id: notificationId,
         schedule: {
-          at: reminderDate,
+          at: reminderDate || new Date(Date.now() + 100),
           repeats: false,
         },
         sound: undefined,

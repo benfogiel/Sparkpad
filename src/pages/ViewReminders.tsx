@@ -61,8 +61,7 @@ const ViewReminders: React.FC = () => {
 
     const sentFirstReminder = await firstReminderSent();
     if (!sentFirstReminder) {
-      const reminderDate = new Date(new Date().getTime() + 100);
-      const scheduledReminder = await scheduleReminder(reminderDate);
+      const scheduledReminder = await scheduleReminder();
       if (scheduledReminder) {
         await addRecentReminder(scheduledReminder.reminder);
       }
