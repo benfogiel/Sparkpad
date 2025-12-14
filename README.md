@@ -30,3 +30,9 @@ Add custom URL schemes to your Xcode project:
 
 Open your project configuration. Select your app from the TARGETS section, then select the Info tab, and expand the URL Types section.
 Click the + button, and add a URL scheme for your reversed client ID. You find this value in your GoogleService-Info.plist configuration file. Look for the REVERSED_CLIENT_ID key and paste the value of that key into the URL Schemes box on the configuration page. Leave the other fields blank.
+
+### Deploy Firestore Rules
+
+```
+npx firebase deploy --only firestore
+```
