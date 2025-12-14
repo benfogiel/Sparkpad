@@ -73,7 +73,7 @@ const App: React.FC = () => {
             {user ? <Redirect to="/reminders-view" /> : <Redirect to="/auth" />}
           </Route>
           <Route path="/auth" exact={true}>
-            {user ? <Redirect to="/reminders-view" /> : <Auth />}
+            <Auth />
           </Route>
           <Route path="/categories-view" exact={true}>
             {user ? <ViewCategories /> : <Redirect to="/auth" />}
