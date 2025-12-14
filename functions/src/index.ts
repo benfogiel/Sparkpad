@@ -17,6 +17,18 @@ admin.initializeApp();
 const db = admin.firestore();
 const messaging = admin.messaging();
 
+interface Reminder {
+  id: string;
+  text: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface RecentReminder {
+  reminder: Reminder;
+  remindedAt: Date;
+}
+
 /**
  * Get a random time between two times
  * @param {string} timeLower - The lower time in HH:mm format
@@ -43,6 +55,30 @@ function getRandomTime(
   };
 }
 
+async function addRecentReminder(userId: string, recentReminder: RecentReminder) {
+  // if there's already a recent reminder for this reminder.id, replace it
+  const recentRemindersSnapshot = await db
+    .collection(`users/${userId}/recentReminders`).get();
+  const recentReminders = recentRemindersSnapshot.empty ?
+    [] :
+    recentRemindersSnapshot.docs.map((doc) => doc.data() as RecentReminder);
+  const duplicateReminder = recentReminders.find(
+    (r: RecentReminder) => r.reminder.id === recentReminder.reminder.id
+  );
+  if (duplicateReminder) {
+    await db
+      .collection(`users/${userId}/recentReminders`)
+      .doc(duplicateReminder.reminder.id).delete();
+  }
+  await db
+    .collection(`users/${userId}/recentReminders`)
+    .doc(recentReminder.reminder.id).set(recentReminder);
+}
+
+function alreadyNotifiedToday(lastNotificationDate: Date, todayInUserTimezone: Date) {
+  return lastNotificationDate && lastNotificationDate >= todayInUserTimezone;
+}
+
 export const scheduleDailyReminder = onSchedule(
   {
     schedule: "every 15 minutes",
@@ -67,8 +103,7 @@ export const scheduleDailyReminder = onSchedule(
         const lastNotification = userData.lastNotificationDate?.toDate();
         const todayInUserTimezone = userTime.startOf("day").toJSDate();
 
-        // Skip if already notified today
-        if (lastNotification && lastNotification >= todayInUserTimezone) {
+        if (alreadyNotifiedToday(lastNotification, todayInUserTimezone)) {
           continue;
         }
 
@@ -93,7 +128,7 @@ export const scheduleDailyReminder = onSchedule(
         // Select random reminder
         const reminders = remindersSnapshot.docs;
         const randomIndex = Math.floor(Math.random() * reminders.length);
-        const randomReminder = reminders[randomIndex].data();
+        const randomReminder: Reminder = reminders[randomIndex].data() as Reminder;
 
         const fcmToken = userData.fcmToken;
         if (!fcmToken) {
@@ -127,7 +162,8 @@ export const scheduleDailyReminder = onSchedule(
           },
         };
 
-        // Send notification and update last notification date
+        // Send notification and update last notification date and add to recent reminders
+        const notificationDate = Timestamp.fromDate(todayInUserTimezone);
         notificationPromises.push(
           messaging
             .send(message)
@@ -137,8 +173,12 @@ export const scheduleDailyReminder = onSchedule(
                 .collection("users")
                 .doc(userId)
                 .update({
-                  lastNotificationDate: Timestamp.fromDate(todayInUserTimezone),
+                  lastNotificationDate: notificationDate,
                 });
+              await addRecentReminder(userId, {
+                reminder: randomReminder,
+                remindedAt: notificationDate.toDate(),
+              });
             })
             .catch((error) => {
               console.error(`Error sending notification to user ${userId}:`, error);
