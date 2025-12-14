@@ -112,9 +112,9 @@ const tooManyRecentReminders = (numRecentReminders: number): boolean => {
 
 export const getRecentReminders = async (): Promise<RecentReminder[]> => {
   assertUser();
-  const docRef = doc(db, 'users', auth.currentUser!.uid, 'recentReminders');
-  const docSnap = await getDoc(docRef);
-  const recentReminders: RecentReminder[] = docSnap.data()?.recentReminders || [];
+  const collectionRef = collection(db, 'users', auth.currentUser!.uid, 'recentReminders');
+  const querySnapshot = await getDocs(collectionRef);
+  const recentReminders = querySnapshot.docs.map((doc) => doc.data() as RecentReminder);
   return await trimRecentReminders(recentReminders);
 };
 
@@ -149,7 +149,8 @@ export const trimRecentReminders = async (
   recentReminders: RecentReminder[] | null = null
 ): Promise<RecentReminder[]> => {
   assertUser();
-  const reminders = recentReminders || (await getRecentReminders());
+  const reminders =
+    recentReminders === null ? await getRecentReminders() : recentReminders;
   const sortedRecentReminders = reminders.sort(
     (a: RecentReminder, b: RecentReminder) =>
       a.remindedAt.getTime() - b.remindedAt.getTime()

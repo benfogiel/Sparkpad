@@ -38,21 +38,25 @@ const ViewReminders: React.FC = () => {
   const [recentReminders, setRecentReminders] = useState<Reminder[]>([]);
 
   const loadRecentReminders = async () => {
+    console.debug('loading recent reminders...');
     const recentReminders = await getRecentReminders();
     setRecentReminders(recentReminders.map((r) => r.reminder));
   };
 
   const loadSelectedCategories = async () => {
+    console.debug('loading selected categories...');
     const selectedCategories = await getSelectedCategories();
     setCategories(selectedCategories);
   };
 
   const loadFirstName = async () => {
+    console.debug('loading first name...');
     const userData = await getUser();
     setFirstName(userData?.firstName || '');
   };
 
   const setupNotifications = async () => {
+    console.debug('setting up notifications...');
     const hasPermission = await requestNotificationPermissions();
     if (!hasPermission) return;
 
