@@ -55,13 +55,17 @@ function getRandomTime(
   };
 }
 
-async function addRecentReminder(userId: string, recentReminder: RecentReminder) {
-  // if there's already a recent reminder for this reminder.id, replace it
+async function getRecentReminders(userId: string): Promise<RecentReminder[]> {
   const recentRemindersSnapshot = await db
     .collection(`users/${userId}/recentReminders`).get();
-  const recentReminders = recentRemindersSnapshot.empty ?
+  return recentRemindersSnapshot.empty ?
     [] :
     recentRemindersSnapshot.docs.map((doc) => doc.data() as RecentReminder);
+}
+
+async function addRecentReminder(userId: string, recentReminder: RecentReminder) {
+  // if there's already a recent reminder for this reminder.id, replace it
+  const recentReminders = await getRecentReminders(userId);
   const duplicateReminder = recentReminders.find(
     (r: RecentReminder) => r.reminder.id === recentReminder.reminder.id
   );
@@ -77,6 +81,21 @@ async function addRecentReminder(userId: string, recentReminder: RecentReminder)
 
 function alreadyNotifiedToday(lastNotificationDate: Date, todayInUserTimezone: Date) {
   return lastNotificationDate && lastNotificationDate >= todayInUserTimezone;
+}
+
+async function getRandomReminder(userId: string): Promise<Reminder | null> {
+  const remindersSnapshot = await db.collection(`users/${userId}/reminders`).get();
+  if (remindersSnapshot.empty) {
+    return null;
+  }
+  let reminders = remindersSnapshot.docs.map((doc) => doc.data() as Reminder);
+  const recentReminders = await getRecentReminders(userId);
+  const nonRecentReminders = reminders.filter(
+    (reminder) => !recentReminders.some((r) => r.reminder.id === reminder.id)
+  );
+  reminders = nonRecentReminders.length > 0 ? nonRecentReminders : reminders;
+  const randomIndex = Math.floor(Math.random() * reminders.length);
+  return reminders[randomIndex];
 }
 
 export const scheduleDailyReminder = onSchedule(
@@ -119,16 +138,11 @@ export const scheduleDailyReminder = onSchedule(
           continue;
         }
 
-        const remindersSnapshot = await db.collection(`users/${userId}/reminders`).get();
-        if (remindersSnapshot.empty) {
-          console.log(`No reminders found for user ${userId}`);
+        const randomReminder = await getRandomReminder(userId);
+        if (!randomReminder) {
+          console.log(`No random reminder found for user ${userId}`);
           continue;
         }
-
-        // Select random reminder
-        const reminders = remindersSnapshot.docs;
-        const randomIndex = Math.floor(Math.random() * reminders.length);
-        const randomReminder: Reminder = reminders[randomIndex].data() as Reminder;
 
         const fcmToken = userData.fcmToken;
         if (!fcmToken) {
@@ -143,7 +157,7 @@ export const scheduleDailyReminder = onSchedule(
             body: randomReminder.text,
           },
           data: {
-            reminderId: reminders[randomIndex].id,
+            reminderId: randomReminder.id,
             timestamp: Timestamp.now().toMillis().toString(),
           },
           android: {
