@@ -18,8 +18,6 @@ import {
 
 import { getDefaultCategories } from '../data/reminders';
 import { CategoryCheckboxItem } from '../components/CategoryItem';
-import { firstReminderSent } from '../services/preferences';
-import { rescheduleReminders } from '../services/notifications';
 import { getSelectedCategories, setSelectedCategories } from '../services/firebaseDB';
 
 const ViewCategories: React.FC = () => {
@@ -58,11 +56,6 @@ const ViewCategories: React.FC = () => {
   };
 
   const onSave = async () => {
-    const sentFirstReminder = await firstReminderSent();
-    if (sentFirstReminder) {
-      rescheduleReminders();
-    }
-
     setSelectedCategories(userSelectedCategories);
     router.push('/reminders-view');
   };

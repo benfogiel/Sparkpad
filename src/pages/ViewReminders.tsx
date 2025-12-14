@@ -18,19 +18,17 @@ import { Reminder } from '../data/reminders';
 import AddReminder from '../components/AddReminder';
 import { ReminderList } from '../components/ReminderList';
 import { settingsOutline } from 'ionicons/icons';
-import {
-  getRecentReminders,
-  firstReminderSent,
-  setFirstReminderSent,
-  addRecentReminder,
-} from '../services/preferences';
-import { scheduleReminder, rescheduleReminders } from '../services/notifications';
+import { firstReminderSent, setFirstReminderSent } from '../services/preferences';
+import { scheduleReminder } from '../services/notifications';
 import { requestNotificationPermissions } from '../services/notifications';
 import {
   getUser,
   addReminder,
   deleteReminder,
   getSelectedCategories,
+  waitForUserReminders,
+  getRecentReminders,
+  addRecentReminder,
 } from '../services/firebaseDB';
 
 const ViewReminders: React.FC = () => {
@@ -42,7 +40,7 @@ const ViewReminders: React.FC = () => {
 
   const loadRecentReminders = async () => {
     const recentReminders = await getRecentReminders();
-    setRecentReminders(recentReminders);
+    setRecentReminders(recentReminders.map((r) => r.reminder));
   };
 
   const loadSelectedCategories = async () => {
@@ -61,17 +59,16 @@ const ViewReminders: React.FC = () => {
 
     const sentFirstReminder = await firstReminderSent();
     if (!sentFirstReminder) {
+      await waitForUserReminders();
       const scheduledReminder = await scheduleReminder();
       if (scheduledReminder) {
         await addRecentReminder(scheduledReminder.reminder);
+        await setFirstReminderSent(true);
       }
       await loadRecentReminders();
-      await setFirstReminderSent(true);
       // sleep to ensure first reminder is delivered
       await new Promise((resolve) => setTimeout(resolve, 500));
     }
-
-    await rescheduleReminders();
   };
 
   useIonViewWillEnter(() => {
@@ -91,13 +88,11 @@ const ViewReminders: React.FC = () => {
 
   const handleAddReminder = async (reminder: Reminder) => {
     await addReminder(reminder);
-    await rescheduleReminders();
   };
 
   const handleDeleteReminder = async (reminder: Reminder) => {
     await deleteReminder(reminder.id);
     await loadRecentReminders();
-    await rescheduleReminders();
   };
 
   return (
