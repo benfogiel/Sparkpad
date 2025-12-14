@@ -18,7 +18,6 @@ import { Reminder } from '../data/reminders';
 import AddReminder from '../components/AddReminder';
 import { ReminderList } from '../components/ReminderList';
 import { settingsOutline } from 'ionicons/icons';
-import { firstReminderSent, setFirstReminderSent } from '../services/preferences';
 import { scheduleReminder } from '../services/notifications';
 import { requestNotificationPermissions } from '../services/notifications';
 import {
@@ -57,13 +56,17 @@ const ViewReminders: React.FC = () => {
     const hasPermission = await requestNotificationPermissions();
     if (!hasPermission) return;
 
-    const sentFirstReminder = await firstReminderSent();
-    if (!sentFirstReminder) {
-      await waitForUserReminders();
+    const reminders = await waitForUserReminders();
+    if (!reminders) {
+      console.error('No reminders found');
+      return;
+    }
+
+    const recentReminders = await getRecentReminders();
+    if (recentReminders.length === 0) {
       const scheduledReminder = await scheduleReminder();
       if (scheduledReminder) {
         await addRecentReminder(scheduledReminder.reminder);
-        await setFirstReminderSent(true);
       }
       await loadRecentReminders();
       // sleep to ensure first reminder is delivered
