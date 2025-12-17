@@ -85,6 +85,7 @@ export const deleteReminder = async (reminderId: string) => {
   assertUser();
   const reminderRef = doc(db, 'users', auth.currentUser!.uid, 'reminders', reminderId);
   await deleteDoc(reminderRef);
+  await deleteRecentReminder(reminderId);
 };
 
 export const setSelectedCategories = async (categories: string[]) => {

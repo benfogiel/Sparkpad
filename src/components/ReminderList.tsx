@@ -49,7 +49,10 @@ export const ReminderList: React.FC<ReminderListProps> = ({
 
       <IonAlert
         header="Are you sure?"
-        message="This will delete the reminder from your list."
+        message={
+          'This will delete the reminder from your list ' +
+          "and you'll never be notified about it again."
+        }
         isOpen={openDeleteReminderAlert}
         buttons={[
           {
