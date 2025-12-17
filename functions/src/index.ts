@@ -19,7 +19,7 @@ const messaging = admin.messaging();
 
 interface Reminder {
   id: string;
-  text: string;
+  quote: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -154,7 +154,7 @@ export const scheduleDailyReminder = onSchedule(
           token: fcmToken,
           notification: {
             title: "Daily Reminder",
-            body: randomReminder.text,
+            body: randomReminder.quote,
           },
           data: {
             reminderId: randomReminder.id,
