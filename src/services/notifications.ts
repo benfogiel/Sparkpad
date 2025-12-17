@@ -57,6 +57,7 @@ export const scheduleReminder = async (
   }
 
   const notificationId = Date.now() * 1000 + Math.floor(Math.random() * 1000);
+  const notificationDate = reminderDate || new Date(Date.now() + 100);
   await LocalNotifications.schedule({
     notifications: [
       {
@@ -64,7 +65,7 @@ export const scheduleReminder = async (
         body: reminder.quote,
         id: notificationId,
         schedule: {
-          at: reminderDate || new Date(Date.now() + 100),
+          at: notificationDate,
           repeats: false,
         },
         sound: undefined,
@@ -77,7 +78,7 @@ export const scheduleReminder = async (
     ],
   });
 
-  return { notificationId, reminder, date: reminderDate };
+  return { notificationId, reminder, date: notificationDate };
 };
 
 // Select random reminder
