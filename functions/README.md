@@ -1,5 +1,5 @@
 ## Deploy Functions to Firebase
 
 ```
-firebase deploy --only functions
+npm run deploy
 ```
