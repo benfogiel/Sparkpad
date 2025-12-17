@@ -25,9 +25,10 @@ import {
   addReminder,
   deleteReminder,
   getSelectedCategories,
-  waitForUserReminders,
   getRecentReminders,
+  waitForUserReminders,
   addRecentReminder,
+  updateFcmToken,
 } from '../services/firebaseDB';
 
 const ViewReminders: React.FC = () => {
@@ -60,11 +61,8 @@ const ViewReminders: React.FC = () => {
     const hasPermission = await requestNotificationPermissions();
     if (!hasPermission) return;
 
-    const reminders = await waitForUserReminders();
-    if (!reminders) {
-      console.error('No reminders found');
-      return;
-    }
+    await updateFcmToken();
+    await waitForUserReminders();
 
     const recentReminders = await getRecentReminders();
     if (recentReminders.length === 0) {
@@ -89,7 +87,6 @@ const ViewReminders: React.FC = () => {
     await loadSelectedCategories();
     await loadFirstName();
     await loadRecentReminders();
-    await setupNotifications();
     e.detail.complete();
   };
 
