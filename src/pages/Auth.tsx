@@ -40,7 +40,7 @@ const Auth: React.FC = () => {
     for (const reminder of reminders) {
       await addReminder(reminder);
     }
-    router.push('/categories-view');
+    router.push('/categories-view', 'root', 'replace');
   };
 
   const signUp = async (): Promise<void> => {
@@ -80,7 +80,7 @@ const Auth: React.FC = () => {
         console.debug('User signed in:', userCredential.user.uid);
         // Sign in to JS SDK to ensure Firestore access works
         await signInWithEmailAndPassword(auth, email, password);
-        router.push('/reminders-view');
+        router.push('/reminders-view', 'root', 'replace');
       } else {
         setErrorLabel('Invalid email or password');
       }
@@ -109,7 +109,7 @@ const Auth: React.FC = () => {
 
           const user = await getUser();
           if (user) {
-            router.push('/reminders-view');
+            router.push('/reminders-view', 'root', 'replace');
           } else {
             const firstName = userCredential.user.displayName?.split(' ')[0] || '';
             await createUser(firstName);

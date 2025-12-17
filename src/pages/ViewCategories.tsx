@@ -57,7 +57,7 @@ const ViewCategories: React.FC = () => {
 
   const onSave = async () => {
     setSelectedCategories(userSelectedCategories);
-    router.push('/reminders-view');
+    router.push('/reminders-view', 'root', 'replace');
   };
 
   return (

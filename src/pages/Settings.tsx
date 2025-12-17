@@ -44,7 +44,7 @@ const Settings: React.FC = () => {
           onClick={async () => {
             await fireAuth.signOut();
             await auth.signOut();
-            router.push('/auth');
+            router.push('/auth', 'root', 'replace');
           }}
         >
           Log Out
