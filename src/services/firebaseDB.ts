@@ -30,27 +30,34 @@ export const getUser = async () => {
 
 export const addUser = async (firstName: string) => {
   assertUser();
-  let fcmToken = '';
+  const docRef = doc(db, 'users', auth.currentUser!.uid);
+  await setDoc(docRef, {
+    firstName,
+    fcmToken: '', // will be updated when notifications are set up
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    createdAt: new Date(),
+    selectedCategories: [],
+  });
+};
 
+export const updateFcmToken = async () => {
+  assertUser();
   try {
+    let fcmToken = '';
     if (Capacitor.isNativePlatform()) {
       const { token } = await FirebaseMessaging.getToken();
       fcmToken = token;
     } else if (messaging) {
       fcmToken = await getToken(messaging);
     }
-  } catch (error) {
-    console.error('Error getting FCM token:', error);
-  }
 
-  const docRef = doc(db, 'users', auth.currentUser!.uid);
-  await setDoc(docRef, {
-    firstName,
-    fcmToken: fcmToken,
-    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-    createdAt: new Date(),
-    selectedCategories: [],
-  });
+    if (fcmToken) {
+      const docRef = doc(db, 'users', auth.currentUser!.uid);
+      await updateDoc(docRef, { fcmToken });
+    }
+  } catch (error) {
+    console.error('Error updating FCM token:', error);
+  }
 };
 
 export const getReminders = async () => {
