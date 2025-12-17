@@ -60,6 +60,12 @@ export const updateFcmToken = async () => {
   }
 };
 
+export const updateLastNotificationDate = async (date: Date = new Date()) => {
+  assertUser();
+  const docRef = doc(db, 'users', auth.currentUser!.uid);
+  await updateDoc(docRef, { lastNotificationDate: Timestamp.fromDate(date) });
+};
+
 export const getReminders = async () => {
   assertUser();
   console.debug('querying reminders for user', auth.currentUser!.uid);

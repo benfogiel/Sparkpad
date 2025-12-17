@@ -1,5 +1,5 @@
 import { FirebaseMessaging } from '@capacitor-firebase/messaging';
-import { getRecentReminders } from './firebaseDB';
+import { updateLastNotificationDate } from './firebaseDB';
 import { Reminder } from '../data/reminders';
 import { getReminders, getSelectedCategories } from './firebaseDB';
 import { LocalNotifications } from '@capacitor/local-notifications';
@@ -29,35 +29,16 @@ export const requestNotificationPermissions = async () => {
   }
 };
 
-export const cancelAllScheduledNotifications = async () => {
-  const pendingNotifications = await LocalNotifications.getPending();
-  if (pendingNotifications.notifications.length > 0) {
-    await LocalNotifications.cancel(pendingNotifications);
-  }
-};
-
 // if reminderDate is null, send reminder immediately
-export const scheduleReminder = async (
-  reminderDate: Date | null = null
-): Promise<ScheduledReminder | null> => {
-  // don't schedule a reminder if it's already scheduled
-  const pendingNotifications = await LocalNotifications.getPending();
-  const pendingReminderIds = pendingNotifications.notifications.map(
-    (n) => n.extra?.reminderId
-  );
-  // don't schedule a reminder if it's a recently sent reminder
-  const recentReminders = await getRecentReminders();
-  const recentReminderIds = recentReminders.map((r) => r.id);
-
-  const excludeIds = pendingReminderIds.concat(recentReminderIds);
-  const reminder = await getRandomReminder(excludeIds);
+export const notifyFirstReminder = async (): Promise<ScheduledReminder | null> => {
+  const reminder = await getRandomReminder();
   if (!reminder) {
     console.warn('No reminders available');
     return null;
   }
 
   const notificationId = Date.now() * 1000 + Math.floor(Math.random() * 1000);
-  const notificationDate = reminderDate || new Date(Date.now() + 100);
+  const notificationDate = new Date(Date.now() + 100);
   await LocalNotifications.schedule({
     notifications: [
       {
@@ -77,6 +58,9 @@ export const scheduleReminder = async (
       },
     ],
   });
+
+  // update last notification date
+  await updateLastNotificationDate(notificationDate);
 
   return { notificationId, reminder, date: notificationDate };
 };
