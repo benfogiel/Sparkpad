@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "build:ios": "ionic cap sync && ionic cap open ios",
+    "build:ios": "ionic cap sync ios && ionic cap open ios",
     "preview": "vite preview",
     "test.e2e": "cypress run",
     "test.unit": "vitest",
