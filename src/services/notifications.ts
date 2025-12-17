@@ -60,7 +60,7 @@ export const scheduleReminder = async (
   await LocalNotifications.schedule({
     notifications: [
       {
-        title: 'Reemind',
+        title: 'Sparkpad',
         body: reminder.quote,
         id: notificationId,
         schedule: {
