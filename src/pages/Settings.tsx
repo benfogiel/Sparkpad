@@ -12,7 +12,9 @@ import {
   IonLabel,
   IonList,
   IonItem,
+  IonIcon,
 } from '@ionic/react';
+import { arrowBackOutline } from 'ionicons/icons';
 
 import { FirebaseAuthentication as fireAuth } from '@capacitor-firebase/authentication';
 import { auth } from '../firebase';
@@ -23,7 +25,14 @@ const Settings: React.FC = () => {
   return (
     <IonPage id="settings-view">
       <IonHeader>
-        <div className="page-header">Settings</div>
+        <div className="page-header">
+          <IonIcon
+            icon={arrowBackOutline}
+            style={{ position: 'absolute', left: '16px', fontSize: '24px' }}
+            onClick={() => router.push('/reminders-view', 'back', 'pop')}
+          />
+          Settings
+        </div>
       </IonHeader>
 
       <IonContent fullscreen scrollY={false}>
