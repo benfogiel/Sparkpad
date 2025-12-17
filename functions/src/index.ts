@@ -26,7 +26,7 @@ interface Reminder {
 
 interface RecentReminder {
   reminder: Reminder;
-  remindedAt: Date;
+  remindedAt: Timestamp;
 }
 
 /**
@@ -191,7 +191,7 @@ export const scheduleDailyReminder = onSchedule(
                 });
               await addRecentReminder(userId, {
                 reminder: randomReminder,
-                remindedAt: notificationDate.toDate(),
+                remindedAt: notificationDate,
               });
             })
             .catch((error) => {

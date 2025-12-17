@@ -6,6 +6,7 @@ import {
   getDocs,
   deleteDoc,
   updateDoc,
+  Timestamp,
 } from 'firebase/firestore';
 import { getToken } from 'firebase/messaging';
 import { FirebaseMessaging } from '@capacitor-firebase/messaging';
@@ -103,7 +104,7 @@ export const getSelectedCategories = async () => {
 
 interface RecentReminder {
   reminder: Reminder;
-  remindedAt: Date;
+  remindedAt: Timestamp;
 }
 
 const tooManyRecentReminders = (numRecentReminders: number): boolean => {
@@ -131,7 +132,7 @@ export const addRecentReminder = async (reminder: Reminder) => {
 
   const newRecentReminder: RecentReminder = {
     reminder: reminder,
-    remindedAt: new Date(),
+    remindedAt: Timestamp.fromDate(new Date()),
   };
   const docRef = doc(db, 'users', auth.currentUser!.uid, 'recentReminders', reminder.id);
   await setDoc(docRef, newRecentReminder);
@@ -152,8 +153,7 @@ export const trimRecentReminders = async (
   const reminders =
     recentReminders === null ? await getRecentReminders() : recentReminders;
   const sortedRecentReminders = reminders.sort(
-    (a: RecentReminder, b: RecentReminder) =>
-      a.remindedAt.getTime() - b.remindedAt.getTime()
+    (a: RecentReminder, b: RecentReminder) => a.remindedAt.seconds - b.remindedAt.seconds
   );
   while (tooManyRecentReminders(sortedRecentReminders.length)) {
     // find the oldest recent reminder and remove it
