@@ -18,7 +18,7 @@ import { Reminder } from '../data/reminders';
 import AddReminder from '../components/AddReminder';
 import { ReminderList } from '../components/ReminderList';
 import { settingsOutline } from 'ionicons/icons';
-import { scheduleReminder } from '../services/notifications';
+import { notifyFirstReminder } from '../services/notifications';
 import { requestNotificationPermissions } from '../services/notifications';
 import {
   getUser,
@@ -62,17 +62,18 @@ const ViewReminders: React.FC = () => {
     if (!hasPermission) return;
 
     await updateFcmToken();
-    await waitForUserReminders();
 
-    const recentReminders = await getRecentReminders();
-    if (recentReminders.length === 0) {
-      const scheduledReminder = await scheduleReminder();
+    // if user has no lastNotificationDate, send first reminder
+    const userData = await getUser();
+    if (!userData?.lastNotificationDate) {
+      await waitForUserReminders();
+      const scheduledReminder = await notifyFirstReminder();
       if (scheduledReminder) {
         await addRecentReminder(scheduledReminder.reminder);
+        await loadRecentReminders();
+        // sleep to ensure first reminder is delivered
+        await new Promise((resolve) => setTimeout(resolve, 500));
       }
-      await loadRecentReminders();
-      // sleep to ensure first reminder is delivered
-      await new Promise((resolve) => setTimeout(resolve, 500));
     }
   };
 
