@@ -11,7 +11,8 @@
     "test.e2e": "cypress run",
     "test.unit": "vitest",
     "lint": "eslint && cd functions && npm run lint",
-    "lint:fix": "eslint --fix && cd functions && npm run lint:fix"
+    "lint:fix": "eslint --fix && cd functions && npm run lint:fix",
+    "deploy:functions": "cd functions && npm run deploy"
   },
   "dependencies": {
     "@capacitor-firebase/authentication": "^7.4.0",

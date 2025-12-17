@@ -36,3 +36,9 @@ Click the + button, and add a URL scheme for your reversed client ID. You find t
 ```
 npx firebase deploy --only firestore
 ```
+
+### Deploy Firebase Functions
+
+```
+npm run deploy:functions
+```
