@@ -59,7 +59,7 @@ export const AddReminder: FC<AddReminderProps> = ({ categories, addReminder }) =
         )}
       </div>
       <IonTextarea
-        label="Add your reminder"
+        label="Add a quote to be reminded of..."
         labelPlacement="floating"
         value={quote}
         onIonInput={(e) => setQuote(e.detail.value || '')}
