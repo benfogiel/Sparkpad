@@ -42,6 +42,9 @@ const Settings: React.FC = () => {
               Categories
             </IonLabel>
           </IonItem>
+          <IonItem>
+            <IonLabel onClick={() => router.push('/quotes-view')}>Quotes</IonLabel>
+          </IonItem>
         </IonList>
       </IonContent>
 

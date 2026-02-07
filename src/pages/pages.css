@@ -49,6 +49,20 @@
   --background: var(--ion-overlay-background-color);
 }
 
+/* ViewQuotes */
+
+#quotes-view ion-content {
+  --background: var(--ion-overlay-background-color);
+}
+
+#quotes-view ion-accordion ion-item[slot='header'] {
+  --background: var(--ion-overlay-background-color);
+}
+
+#quotes-view ion-accordion ion-item {
+  --background: var(--ion-background-color);
+}
+
 /* Auth */
 
 #auth-view .login-container {

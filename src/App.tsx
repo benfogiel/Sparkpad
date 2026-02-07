@@ -8,6 +8,7 @@ import ViewCategories from './pages/ViewCategories';
 import ViewReminders from './pages/ViewReminders';
 import Auth from './pages/Auth';
 import Settings from './pages/Settings';
+import ViewQuotes from './pages/ViewQuotes';
 import { auth } from './firebase';
 
 /* Core CSS required for Ionic components to work properly */
@@ -83,6 +84,9 @@ const App: React.FC = () => {
           </Route>
           <Route path="/settings" exact={true}>
             {user ? <Settings /> : <Redirect to="/auth" />}
+          </Route>
+          <Route path="/quotes-view" exact={true}>
+            {user ? <ViewQuotes /> : <Redirect to="/auth" />}
           </Route>
         </IonRouterOutlet>
       </IonReactRouter>
