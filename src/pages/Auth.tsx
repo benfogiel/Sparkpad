@@ -30,6 +30,7 @@ import { auth } from '../firebase';
 const Auth: React.FC = () => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
+  const [confirmPassword, setConfirmPassword] = useState<string>('');
   const [firstName, setFirstName] = useState<string>('');
   const [toggleSignIn, setToggleSignIn] = useState<boolean>(false);
   const [errorLabel, setErrorLabel] = useState<string>('');
@@ -44,6 +45,10 @@ const Auth: React.FC = () => {
   };
 
   const signUp = async (): Promise<void> => {
+    if (password !== confirmPassword) {
+      setErrorLabel('Passwords do not match');
+      return;
+    }
     setLoading(true);
     try {
       const userCredential = await fireAuth.createUserWithEmailAndPassword({
@@ -167,6 +172,17 @@ const Auth: React.FC = () => {
               placeholder="Password"
             />
           </IonItem>
+          {!toggleSignIn && password.length > 0 && (
+            <IonItem lines="none">
+              <IonInput
+                className="input-field"
+                type="password"
+                value={confirmPassword}
+                onIonInput={(e) => setConfirmPassword(e.detail.value || '')}
+                placeholder="Verify Password"
+              />
+            </IonItem>
+          )}
           {errorLabel && <IonText color="danger">{errorLabel}</IonText>}
           {!toggleSignIn && (
             <IonButton className="button" expand="block" onClick={signUp} color="dark">
