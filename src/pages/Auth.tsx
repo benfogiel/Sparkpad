@@ -34,6 +34,7 @@ const Auth: React.FC = () => {
   const [firstName, setFirstName] = useState<string>('');
   const [toggleSignIn, setToggleSignIn] = useState<boolean>(false);
   const [errorLabel, setErrorLabel] = useState<string>('');
+  const [successLabel, setSuccessLabel] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const router = useIonRouter();
 
@@ -98,6 +99,29 @@ const Auth: React.FC = () => {
       console.error('Sign-in error:', authError.message);
       if (authError.code == 'auth/invalid-credential') {
         setErrorLabel('Invalid email or password');
+      } else {
+        setErrorLabel(authError.message.replace('Firebase: ', ''));
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const forgotPassword = async () => {
+    if (!email) {
+      setErrorLabel('Please enter your email address');
+      return;
+    }
+    setLoading(true);
+    try {
+      await fireAuth.sendPasswordResetEmail({ email });
+      setErrorLabel('');
+      setSuccessLabel('Password reset email sent if account exists');
+    } catch (error) {
+      const authError = error as AuthError;
+      console.error('Password reset error:', authError.message);
+      if (authError.code === 'auth/invalid-email') {
+        setErrorLabel('Invalid email');
       } else {
         setErrorLabel(authError.message.replace('Firebase: ', ''));
       }
@@ -184,17 +208,31 @@ const Auth: React.FC = () => {
             </IonItem>
           )}
           {errorLabel && <IonText color="danger">{errorLabel}</IonText>}
+          {successLabel && <IonText color="success">{successLabel}</IonText>}
           {!toggleSignIn && (
             <IonButton className="button" expand="block" onClick={signUp} color="dark">
               Sign Up
             </IonButton>
           )}
           {toggleSignIn && (
-            <IonButton className="button" expand="block" onClick={signIn} color="dark">
-              Sign In
-            </IonButton>
+            <>
+              <IonButton className="button" expand="block" onClick={signIn} color="dark">
+                Sign In
+              </IonButton>
+              <IonText onClick={forgotPassword} style={{ cursor: 'pointer' }}>
+                <p style={{ marginBottom: '0px' }}>
+                  <u>Forgot Password?</u>
+                </p>
+              </IonText>
+            </>
           )}
-          <IonText onClick={() => setToggleSignIn(!toggleSignIn)}>
+          <IonText
+            onClick={() => {
+              setToggleSignIn(!toggleSignIn);
+              setErrorLabel('');
+              setSuccessLabel('');
+            }}
+          >
             <p>
               {toggleSignIn ? (
                 <>
