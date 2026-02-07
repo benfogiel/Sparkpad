@@ -37,7 +37,7 @@ export const addUser = async (firstName: string) => {
     fcmToken: '', // will be updated when notifications are set up
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     createdAt: new Date(),
-    selectedCategories: [],
+    selectedCategories: ['General'],
   });
 };
 

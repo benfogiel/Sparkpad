@@ -1,9 +1,8 @@
 import './AddReminder.css';
 
-import React, { useState, FC, useRef } from 'react';
+import React, { useState, useEffect, FC, useRef } from 'react';
 import {
   IonTextarea,
-  IonIcon,
   IonModal,
   IonButton,
   IonList,
@@ -12,10 +11,12 @@ import {
   IonToast,
 } from '@ionic/react';
 import { v4 as uuidv4 } from 'uuid';
+import { Preferences } from '@capacitor/preferences';
 
 import { Reminder } from '../data/reminders';
-import { list } from 'ionicons/icons';
 import { CategoryRadioItem } from './CategoryItem';
+
+const LAST_CATEGORY_KEY = 'lastSelectedCategory';
 
 interface AddReminderProps {
   categories: string[];
@@ -30,8 +31,20 @@ export const AddReminder: FC<AddReminderProps> = ({ categories, addReminder }) =
   const [showReminderAddedToast, setShowReminderAddedToast] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
 
+  useEffect(() => {
+    if (categories.length === 0) return;
+    Preferences.get({ key: LAST_CATEGORY_KEY }).then(({ value }) => {
+      if (value && categories.includes(value)) {
+        setSelectedCategory(value);
+      } else {
+        setSelectedCategory(categories[0]);
+      }
+    });
+  }, [categories]);
+
   const onCategorySelect = (c: string) => {
     setSelectedCategory(c);
+    Preferences.set({ key: LAST_CATEGORY_KEY, value: c });
     selectCategoryModal.current?.dismiss();
   };
 
@@ -39,10 +52,7 @@ export const AddReminder: FC<AddReminderProps> = ({ categories, addReminder }) =
     if (quote && selectedCategory) {
       addReminder({ id: uuidv4(), quote, category: selectedCategory });
       setQuote('');
-      setSelectedCategory('');
       setShowReminderAddedToast(true);
-    } else if (quote && !selectedCategory) {
-      setModalOpen(true);
     }
   };
 
@@ -52,11 +62,7 @@ export const AddReminder: FC<AddReminderProps> = ({ categories, addReminder }) =
         id="add-reminder-header"
         onClick={() => selectCategoryModal.current?.present()}
       >
-        {selectedCategory ? (
-          <IonBadge color="primary">{selectedCategory}</IonBadge>
-        ) : (
-          <IonIcon icon={list} />
-        )}
+        <IonBadge color="primary">{selectedCategory}</IonBadge>
       </div>
       <IonTextarea
         label="Add a quote to be reminded of..."
