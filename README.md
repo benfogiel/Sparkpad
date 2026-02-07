@@ -8,16 +8,6 @@
 npm run build:ios
 ```
 
-### Required Environment Variables
-
-```
-VITE_FIREBASE_API_KEY
-VITE_FIREBASE_AUTH_DOMAIN
-VITE_FIREBASE_PROJECT_ID
-VITE_FIREBASE_MESSAGING_SENDER_ID
-VITE_FIREBASE_APP_ID
-```
-
 ### Setting up firebase authenticator
 
 TDOD: there is more to do here, but this is a start.
