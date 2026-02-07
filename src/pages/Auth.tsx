@@ -22,7 +22,7 @@ import {
 import { FirebaseAuthentication as fireAuth } from '@capacitor-firebase/authentication';
 import { logoGoogle } from 'ionicons/icons';
 
-import { addReminder, addUser, getUser } from '../services/firebaseDB';
+import { addRemindersBatch, addUser, getUser } from '../services/firebaseDB';
 import { getDefaultReminders } from '../data/reminders';
 import { auth } from '../firebase';
 
@@ -37,9 +37,7 @@ const Auth: React.FC = () => {
   const createUser = async (firstName: string) => {
     await addUser(firstName);
     const reminders = getDefaultReminders();
-    for (const reminder of reminders) {
-      await addReminder(reminder);
-    }
+    await addRemindersBatch(reminders);
     router.push('/categories-view', 'root', 'replace');
   };
 

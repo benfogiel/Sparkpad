@@ -6,6 +6,7 @@ import {
   getDocs,
   deleteDoc,
   updateDoc,
+  writeBatch,
   Timestamp,
 } from 'firebase/firestore';
 import { getToken } from 'firebase/messaging';
@@ -92,6 +93,21 @@ export const addReminder = async (reminder: Reminder) => {
   assertUser();
   const reminderRef = doc(db, 'users', auth.currentUser!.uid, 'reminders', reminder.id);
   await setDoc(reminderRef, reminder);
+};
+
+export const addRemindersBatch = async (reminders: Reminder[]) => {
+  assertUser();
+  const uid = auth.currentUser!.uid;
+  // Firestore batches are limited to 500 operations
+  for (let i = 0; i < reminders.length; i += 500) {
+    const batch = writeBatch(db);
+    const chunk = reminders.slice(i, i + 500);
+    for (const reminder of chunk) {
+      const reminderRef = doc(db, 'users', uid, 'reminders', reminder.id);
+      batch.set(reminderRef, reminder);
+    }
+    await batch.commit();
+  }
 };
 
 export const deleteReminder = async (reminderId: string) => {
