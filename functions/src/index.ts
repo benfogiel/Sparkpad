@@ -20,8 +20,7 @@ const messaging = admin.messaging();
 interface Reminder {
   id: string;
   quote: string;
-  createdAt: Date;
-  updatedAt: Date;
+  category: string;
 }
 
 interface RecentReminder {
@@ -30,72 +29,75 @@ interface RecentReminder {
 }
 
 /**
- * Get a random time between two times
- * @param {string} timeLower - The lower time in HH:mm format
- * @param {string} timeUpper - The upper time in HH:mm format
- * @returns {hours: number, minutes: number} - A random time between the two times
+ * Generate a random DateTime between timeLower and timeUpper on the given day.
  */
-function getRandomTime(
+function generateRandomTimeForDay(
+  day: DateTime,
   timeLower: string,
   timeUpper: string
-): { hours: number; minutes: number } {
-  const [lowerHours, lowerMinutes] = timeLower.split(":").map(Number);
-  const [upperHours, upperMinutes] = timeUpper.split(":").map(Number);
-
-  const lowerTotalMinutes = lowerHours * 60 + lowerMinutes;
-  const upperTotalMinutes = upperHours * 60 + upperMinutes;
-
+): DateTime {
+  const [lowerH, lowerM] = timeLower.split(":").map(Number);
+  const [upperH, upperM] = timeUpper.split(":").map(Number);
+  const lowerTotal = lowerH * 60 + lowerM;
+  const upperTotal = upperH * 60 + upperM;
   const randomMinutes =
-    Math.floor(Math.random() * (upperTotalMinutes - lowerTotalMinutes + 1)) +
-    lowerTotalMinutes;
+    Math.floor(Math.random() * (upperTotal - lowerTotal + 1)) + lowerTotal;
 
-  return {
+  return day.startOf("day").plus({
     hours: Math.floor(randomMinutes / 60),
     minutes: randomMinutes % 60,
-  };
+  });
 }
 
 async function getRecentReminders(userId: string): Promise<RecentReminder[]> {
-  const recentRemindersSnapshot = await db
+  const snapshot = await db
     .collection(`users/${userId}/recentReminders`).get();
-  return recentRemindersSnapshot.empty ?
+  return snapshot.empty ?
     [] :
-    recentRemindersSnapshot.docs.map((doc) => doc.data() as RecentReminder);
+    snapshot.docs.map((doc) => doc.data() as RecentReminder);
 }
 
 async function addRecentReminder(userId: string, recentReminder: RecentReminder) {
-  // if there's already a recent reminder for this reminder.id, replace it
   const recentReminders = await getRecentReminders(userId);
-  const duplicateReminder = recentReminders.find(
-    (r: RecentReminder) => r.reminder.id === recentReminder.reminder.id
+  const duplicate = recentReminders.find(
+    (r) => r.reminder.id === recentReminder.reminder.id
   );
-  if (duplicateReminder) {
+  if (duplicate) {
     await db
       .collection(`users/${userId}/recentReminders`)
-      .doc(duplicateReminder.reminder.id).delete();
+      .doc(duplicate.reminder.id).delete();
   }
   await db
     .collection(`users/${userId}/recentReminders`)
     .doc(recentReminder.reminder.id).set(recentReminder);
 }
 
-function alreadyNotifiedToday(lastNotificationDate: Date, todayInUserTimezone: Date) {
-  return lastNotificationDate && lastNotificationDate >= todayInUserTimezone;
-}
+async function getRandomReminder(
+  userId: string, selectedCategories: string[]
+): Promise<Reminder | null> {
+  const snapshot = await db.collection(`users/${userId}/reminders`).get();
+  if (snapshot.empty) return null;
 
-async function getRandomReminder(userId: string): Promise<Reminder | null> {
-  const remindersSnapshot = await db.collection(`users/${userId}/reminders`).get();
-  if (remindersSnapshot.empty) {
-    return null;
+  let reminders = snapshot.docs.map((doc) => doc.data() as Reminder);
+
+  // Filter to only reminders in the user's selected categories
+  if (selectedCategories.length > 0) {
+    const filtered = reminders.filter((r) => selectedCategories.includes(r.category));
+    if (filtered.length > 0) {
+      reminders = filtered;
+    }
   }
-  let reminders = remindersSnapshot.docs.map((doc) => doc.data() as Reminder);
+
+  // Prefer non-recent reminders
   const recentReminders = await getRecentReminders(userId);
-  const nonRecentReminders = reminders.filter(
-    (reminder) => !recentReminders.some((r) => r.reminder.id === reminder.id)
+  const nonRecent = reminders.filter(
+    (r) => !recentReminders.some((rr) => rr.reminder.id === r.id)
   );
-  reminders = nonRecentReminders.length > 0 ? nonRecentReminders : reminders;
-  const randomIndex = Math.floor(Math.random() * reminders.length);
-  return reminders[randomIndex];
+  if (nonRecent.length > 0) {
+    reminders = nonRecent;
+  }
+
+  return reminders[Math.floor(Math.random() * reminders.length)];
 }
 
 export const scheduleDailyReminder = onSchedule(
@@ -112,41 +114,57 @@ export const scheduleDailyReminder = onSchedule(
       for (const userDoc of usersSnapshot.docs) {
         const userId = userDoc.id;
         const userData = userDoc.data();
+        const userRef = db.collection("users").doc(userId);
 
         const userTimezone = userData.timezone || "UTC";
-        const userTime = now.setZone(userTimezone);
-        const currentHours = userTime.hour;
-        const currentMinutes = userTime.minute;
-        const currentTotalMinutes = currentHours * 60 + currentMinutes;
+        const userNow = now.setZone(userTimezone);
+        const todayStart = userNow.startOf("day");
 
+        // 1. Skip if already notified today
         const lastNotification = userData.lastNotificationDate?.toDate();
-        const todayInUserTimezone = userTime.startOf("day").toJSDate();
-
-        if (alreadyNotifiedToday(lastNotification, todayInUserTimezone)) {
+        if (lastNotification && lastNotification >= todayStart.toJSDate()) {
           continue;
         }
 
         const timeLower = userData.timeLower || "09:00";
         const timeUpper = userData.timeUpper || "21:00";
 
-        // Generate random time for today
-        const randomTime = getRandomTime(timeLower, timeUpper);
-        const randomTotalMinutes = randomTime.hours * 60 + randomTime.minutes;
+        // 2. Ensure a scheduled time exists for today
+        let scheduledTime: DateTime | null = null;
+        const storedScheduled = userData.scheduledReminderTime?.toDate();
 
-        // Skip if current time is not within 15 minutes of random time
-        if (Math.abs(currentTotalMinutes - randomTotalMinutes) > 15) {
+        if (storedScheduled) {
+          const storedDT = DateTime.fromJSDate(storedScheduled).setZone(userTimezone);
+          // Check if the stored time is for today
+          if (storedDT >= todayStart && storedDT < todayStart.plus({days: 1})) {
+            scheduledTime = storedDT;
+          }
+        }
+
+        if (!scheduledTime) {
+          // Generate and persist a random time for today
+          scheduledTime = generateRandomTimeForDay(userNow, timeLower, timeUpper);
+          await userRef.update({
+            scheduledReminderTime: Timestamp.fromDate(scheduledTime.toJSDate()),
+          });
+        }
+
+        // 3. Skip if it's not time yet
+        if (userNow < scheduledTime) {
           continue;
         }
 
-        const randomReminder = await getRandomReminder(userId);
-        if (!randomReminder) {
-          console.log(`No random reminder found for user ${userId}`);
-          continue;
-        }
-
+        // 4. Send notification — fetch a fresh reminder at send time
         const fcmToken = userData.fcmToken;
         if (!fcmToken) {
           console.log(`No FCM token found for user ${userId}`);
+          continue;
+        }
+
+        const selectedCategories: string[] = userData.selectedCategories || [];
+        const randomReminder = await getRandomReminder(userId, selectedCategories);
+        if (!randomReminder) {
+          console.log(`No reminder found for user ${userId}`);
           continue;
         }
 
@@ -164,7 +182,6 @@ export const scheduleDailyReminder = onSchedule(
             priority: "high",
             notification: {
               sound: "default",
-              clickAction: "FLUTTER_NOTIFICATION_CLICK",
             },
           },
           apns: {
@@ -176,19 +193,13 @@ export const scheduleDailyReminder = onSchedule(
           },
         };
 
-        // Send notification and update last notification date and add to recent reminders
-        const notificationDate = Timestamp.fromDate(todayInUserTimezone);
+        const notificationDate = Timestamp.fromDate(todayStart.toJSDate());
         notificationPromises.push(
           messaging
             .send(message)
             .then(async () => {
               console.log(`Notification sent to user ${userId}`);
-              await db
-                .collection("users")
-                .doc(userId)
-                .update({
-                  lastNotificationDate: notificationDate,
-                });
+              await userRef.update({lastNotificationDate: notificationDate});
               await addRecentReminder(userId, {
                 reminder: randomReminder,
                 remindedAt: notificationDate,
@@ -201,10 +212,9 @@ export const scheduleDailyReminder = onSchedule(
       }
 
       await Promise.all(notificationPromises);
-
-      console.log("Random reminders processed successfully");
+      console.log("Daily reminders processed successfully");
     } catch (error) {
-      console.error("Error processing random reminders:", error);
+      console.error("Error processing daily reminders:", error);
     }
   }
 );
