@@ -11,6 +11,7 @@ import {
   IonHeader,
   IonText,
   IonIcon,
+  IonLoading,
   useIonRouter,
 } from '@ionic/react';
 import {
@@ -32,6 +33,7 @@ const Auth: React.FC = () => {
   const [firstName, setFirstName] = useState<string>('');
   const [toggleSignIn, setToggleSignIn] = useState<boolean>(false);
   const [errorLabel, setErrorLabel] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
   const router = useIonRouter();
 
   const createUser = async (firstName: string) => {
@@ -42,6 +44,7 @@ const Auth: React.FC = () => {
   };
 
   const signUp = async (): Promise<void> => {
+    setLoading(true);
     try {
       const userCredential = await fireAuth.createUserWithEmailAndPassword({
         email,
@@ -65,10 +68,13 @@ const Auth: React.FC = () => {
       } else {
         setErrorLabel(authError.message.replace('Firebase: ', ''));
       }
+    } finally {
+      setLoading(false);
     }
   };
 
   const signIn = async (): Promise<void> => {
+    setLoading(true);
     try {
       const userCredential = await fireAuth.signInWithEmailAndPassword({
         email,
@@ -90,10 +96,13 @@ const Auth: React.FC = () => {
       } else {
         setErrorLabel(authError.message.replace('Firebase: ', ''));
       }
+    } finally {
+      setLoading(false);
     }
   };
 
   const googleSignIn = async () => {
+    setLoading(true);
     try {
       const result = await fireAuth.signInWithGoogle();
       const idToken = result.credential?.idToken;
@@ -117,6 +126,8 @@ const Auth: React.FC = () => {
     } catch (err) {
       const authError = err as AuthError;
       console.error('Sign-in error:', authError.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -126,6 +137,7 @@ const Auth: React.FC = () => {
         <div className="page-header">Welcome to Sparkpad!</div>
       </IonHeader>
 
+      <IonLoading isOpen={loading} />
       <IonContent fullscreen className="ion-padding">
         <div className="login-container">
           <IonItem lines="none">
