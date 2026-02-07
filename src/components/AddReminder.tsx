@@ -65,7 +65,7 @@ export const AddReminder: FC<AddReminderProps> = ({ categories, addReminder }) =
         <IonBadge color="primary">{selectedCategory}</IonBadge>
       </div>
       <IonTextarea
-        label="Add a quote to be reminded of..."
+        label="A quote to be reminded of..."
         labelPlacement="floating"
         value={quote}
         onIonInput={(e) => setQuote(e.detail.value || '')}
