@@ -166,7 +166,7 @@ const Auth: React.FC = () => {
         <div className="page-header">Welcome to Sparkpad!</div>
       </IonHeader>
 
-      <IonLoading isOpen={loading} />
+      {loading && <IonLoading isOpen={true} />}
       <IonContent fullscreen className="ion-padding">
         <div className="login-container">
           <IonItem lines="none">

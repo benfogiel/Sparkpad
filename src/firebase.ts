@@ -1,6 +1,12 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
-import { initializeAuth, indexedDBLocalPersistence, getAuth, Auth } from 'firebase/auth';
+import {
+  initializeAuth,
+  indexedDBLocalPersistence,
+  browserLocalPersistence,
+  getAuth,
+  Auth,
+} from 'firebase/auth';
 import { getMessaging, Messaging } from 'firebase/messaging';
 import { Capacitor } from '@capacitor/core';
 
@@ -18,7 +24,7 @@ export const db = getFirestore(app);
 let auth: Auth;
 if (Capacitor.isNativePlatform()) {
   auth = initializeAuth(app, {
-    persistence: indexedDBLocalPersistence,
+    persistence: [indexedDBLocalPersistence, browserLocalPersistence],
   });
 } else {
   auth = getAuth(app);
