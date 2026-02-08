@@ -1,12 +1,11 @@
 # Sparkpad
 
-Sparkpad allows you to save quotes that resonate with you and get notified about them randomly throughout the day.
+Sparkpad allows you to save quotes that resonate with you and get randomly reminded of them throughout your day.
 
 ## Screenshots
 
 <p align="center">
   <img src="docs/login-page.PNG" alt="Login page" width="250">
-  &nbsp;&nbsp;&nbsp;
   <img src="docs/reminders-page.PNG" alt="Reminders page" width="250">
 </p>
 
