@@ -127,7 +127,7 @@ const ViewReminders: React.FC = () => {
           <AddReminder categories={categories} addReminder={handleAddReminder} />
 
           <IonText>
-            <h5>Notified Reminders</h5>
+            <h5>Notified Quotes</h5>
           </IonText>
 
           <ReminderList
