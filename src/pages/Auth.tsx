@@ -163,11 +163,19 @@ const Auth: React.FC = () => {
   return (
     <IonPage id="auth-view">
       <IonHeader>
-        <div className="page-header">Welcome to Sparkpad!</div>
+        <div className="page-header" style={{ paddingBottom: '7px' }}>
+          Welcome to Sparkpad!
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'center', paddingBottom: '7px' }}>
+          <picture>
+            <source srcSet="/logo-dark.svg" media="(prefers-color-scheme: dark)" />
+            <img src="/logo-light.svg" alt="Sparkpad" style={{ width: '150px' }} />
+          </picture>
+        </div>
       </IonHeader>
 
       {loading && <IonLoading isOpen={true} />}
-      <IonContent fullscreen className="ion-padding">
+      <IonContent className="ion-padding">
         <div className="login-container">
           <IonItem lines="none">
             {!toggleSignIn && (
