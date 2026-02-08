@@ -5,6 +5,9 @@ const config: CapacitorConfig = {
   appName: 'Sparkpad',
   webDir: 'dist',
   plugins: {
+    Keyboard: {
+      resize: 'none',
+    },
     FirebaseAuthentication: {
       skipNativeAuth: false,
       providers: ['google.com'],
