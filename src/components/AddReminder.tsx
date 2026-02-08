@@ -100,7 +100,7 @@ export const AddReminder: FC<AddReminderProps> = ({ categories, addReminder }) =
       <IonToast
         isOpen={showReminderAddedToast}
         onDidDismiss={() => setShowReminderAddedToast(false)}
-        message="Reminder added!"
+        message="Quote added!"
         duration={1000}
         position="top"
       />
