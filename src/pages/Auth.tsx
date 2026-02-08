@@ -46,6 +46,10 @@ const Auth: React.FC = () => {
   };
 
   const signUp = async (): Promise<void> => {
+    if (!email || !password) {
+      setErrorLabel('Please enter your email and password');
+      return;
+    }
     if (password !== confirmPassword) {
       setErrorLabel('Passwords do not match');
       return;
@@ -80,6 +84,10 @@ const Auth: React.FC = () => {
   };
 
   const signIn = async (): Promise<void> => {
+    if (!email || !password) {
+      setErrorLabel('Please enter your email and password');
+      return;
+    }
     setLoading(true);
     try {
       const userCredential = await fireAuth.signInWithEmailAndPassword({
