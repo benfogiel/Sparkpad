@@ -43,8 +43,16 @@ import './theme/variables.css';
 
 setupIonicReact();
 
+const AUTH_TIMEOUT_MS = 3000;
+
 const App: React.FC = () => {
   const [user, loading, error] = useAuthState(auth);
+  const [timedOut, setTimedOut] = React.useState(false);
+
+  React.useEffect(() => {
+    const timer = setTimeout(() => setTimedOut(true), AUTH_TIMEOUT_MS);
+    return () => clearTimeout(timer);
+  }, []);
 
   React.useEffect(() => {
     if (loading) {
@@ -58,7 +66,7 @@ const App: React.FC = () => {
     }
   }, [user, loading, error]);
 
-  if (loading) {
+  if (loading && !timedOut) {
     return (
       <IonApp>
         <IonLoading isOpen={true} message="Loading..." />
