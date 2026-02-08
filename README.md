@@ -1,34 +1,28 @@
 # Sparkpad
 
-## Development
+Sparkpad allows you to save quotes that resonate with you and get notified about them randomly throughout the day.
 
-### Building for iOS
+## Screenshots
 
-```
-npm run build:ios
-```
+<p align="center">
+  <img src="docs/login-page.PNG" alt="Login page" width="250">
+  &nbsp;&nbsp;&nbsp;
+  <img src="docs/reminders-page.PNG" alt="Reminders page" width="250">
+</p>
 
-### Setting up firebase authenticator
+## Tech Stack
 
-TDOD: there is more to do here, but this is a start.
+- [Ionic](https://ionicframework.com/) + [React](https://react.dev/)
+- [Capacitor](https://capacitorjs.com/) for native iOS
+- [Firebase](https://firebase.google.com/) (Auth, Firestore, Cloud Functions, Messaging)
 
-#### Setup Google Authentication
-
-capacitor-firebase/authentication [documentation](https://github.com/capawesome-team/capacitor-firebase/blob/main/packages/authentication/docs/setup-google.md)
-
-Add custom URL schemes to your Xcode project:
-
-Open your project configuration. Select your app from the TARGETS section, then select the Info tab, and expand the URL Types section.
-Click the + button, and add a URL scheme for your reversed client ID. You find this value in your GoogleService-Info.plist configuration file. Look for the REVERSED_CLIENT_ID key and paste the value of that key into the URL Schemes box on the configuration page. Leave the other fields blank.
-
-### Deploy Firestore Rules
+## Getting Started
 
 ```
-npx firebase deploy --only firestore
+npm install
+npm run dev
 ```
 
-### Deploy Firebase Functions
+## Developer Docs
 
-```
-npm run deploy:functions
-```
+See [DEVELOPING.md](DEVELOPING.md) for build, deployment, and Firebase setup instructions.
