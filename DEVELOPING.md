@@ -27,6 +27,17 @@ Click the + button, and add a URL scheme for your reversed client ID. You find t
 npx firebase deploy --only firestore
 ```
 
+### Setup APNs for iOS Push Notifications
+
+Push notifications via TestFlight/App Store require an APNs Authentication Key uploaded to Firebase.
+
+1. Go to [Apple Developer - Keys](https://developer.apple.com/account/resources/authkeys/list) and create a new key with **Apple Push Notifications service (APNs)** enabled
+2. Download the `.p8` file (only available once)
+3. Note the **Key ID** from the key details page
+4. In [Firebase Console](https://console.firebase.google.com) -> **Project Settings** -> **Cloud Messaging** -> your iOS app, upload the `.p8` file, the Key ID, and your Team ID
+
+Without this, notifications will work from Xcode (development APNs) but fail from TestFlight/App Store (production APNs).
+
 ### Deploy Firebase Functions
 
 ```
