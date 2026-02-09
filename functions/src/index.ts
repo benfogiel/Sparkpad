@@ -171,7 +171,6 @@ export const scheduleDailyReminder = onSchedule(
         const message: admin.messaging.Message = {
           token: fcmToken,
           notification: {
-            title: "Your Quote of the Day",
             body: randomReminder.quote,
           },
           data: {
