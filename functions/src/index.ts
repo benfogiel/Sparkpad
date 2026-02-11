@@ -126,8 +126,8 @@ export const scheduleDailyReminder = onSchedule(
           continue;
         }
 
-        const timeLower = userData.timeLower || "09:00";
-        const timeUpper = userData.timeUpper || "21:00";
+        const timeLower = userData.timeLower || "08:00";
+        const timeUpper = userData.timeUpper || "17:00";
 
         // 2. Ensure a scheduled time exists for today
         let scheduledTime: DateTime | null = null;
