@@ -111,6 +111,19 @@ export const addRemindersBatch = async (reminders: Reminder[]) => {
   }
 };
 
+export const updateReminderCategory = async (reminderId: string, category: string) => {
+  assertUser();
+  const uid = auth.currentUser!.uid;
+  const reminderRef = doc(db, 'users', uid, 'reminders', reminderId);
+  await updateDoc(reminderRef, { category });
+
+  const recentReminderRef = doc(db, 'users', uid, 'recentReminders', reminderId);
+  const recentReminderSnap = await getDoc(recentReminderRef);
+  if (recentReminderSnap.exists()) {
+    await updateDoc(recentReminderRef, { 'reminder.category': category });
+  }
+};
+
 export const deleteReminder = async (reminderId: string) => {
   assertUser();
   const reminderRef = doc(db, 'users', auth.currentUser!.uid, 'reminders', reminderId);

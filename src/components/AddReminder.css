@@ -49,6 +49,12 @@ ion-modal {
   background-color: var(--ion-overlay-background-color);
 }
 
+.modal-content ion-list {
+  width: 100%;
+  background: transparent;
+  padding-top: 24px;
+}
+
 .modal-content ion-item {
   --background: var(--ion-overlay-background-color);
 }

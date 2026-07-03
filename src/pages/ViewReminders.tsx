@@ -24,6 +24,7 @@ import {
   getUser,
   addReminder,
   deleteReminder,
+  updateReminderCategory,
   getSelectedCategories,
   getRecentReminders,
   waitForUserReminders,
@@ -100,6 +101,11 @@ const ViewReminders: React.FC = () => {
     await loadRecentReminders();
   };
 
+  const handleUpdateReminderCategory = async (reminder: Reminder, category: string) => {
+    await updateReminderCategory(reminder.id, category);
+    await loadRecentReminders();
+  };
+
   return (
     <IonPage id="reminders-view">
       <IonHeader translucent>
@@ -132,7 +138,9 @@ const ViewReminders: React.FC = () => {
 
           <ReminderList
             reminders={recentReminders.reverse()}
+            categories={categories}
             deleteReminder={handleDeleteReminder}
+            updateReminderCategory={handleUpdateReminderCategory}
           />
         </div>
       </IonContent>

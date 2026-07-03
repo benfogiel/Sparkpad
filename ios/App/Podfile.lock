@@ -9,6 +9,8 @@ PODS:
     - CapacitorCordova
   - CapacitorApp (7.0.0):
     - Capacitor
+  - CapacitorClipboard (7.0.4):
+    - Capacitor
   - CapacitorCordova (7.0.1)
   - CapacitorFirebaseAuthentication (7.4.0):
     - Capacitor
@@ -113,6 +115,7 @@ PODS:
 DEPENDENCIES:
   - "Capacitor (from `../../node_modules/@capacitor/ios`)"
   - "CapacitorApp (from `../../node_modules/@capacitor/app`)"
+  - "CapacitorClipboard (from `../../node_modules/@capacitor/clipboard`)"
   - "CapacitorCordova (from `../../node_modules/@capacitor/ios`)"
   - "CapacitorFirebaseAuthentication (from `../../node_modules/@capacitor-firebase/authentication`)"
   - "CapacitorFirebaseAuthentication/Google (from `../../node_modules/@capacitor-firebase/authentication`)"
@@ -148,6 +151,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor/ios"
   CapacitorApp:
     :path: "../../node_modules/@capacitor/app"
+  CapacitorClipboard:
+    :path: "../../node_modules/@capacitor/clipboard"
   CapacitorCordova:
     :path: "../../node_modules/@capacitor/ios"
   CapacitorFirebaseAuthentication:
@@ -169,6 +174,7 @@ SPEC CHECKSUMS:
   AppAuth: d4f13a8fe0baf391b2108511793e4b479691fb73
   Capacitor: de199cba6c8b20995428ad0b7cb0bc6ca625ffd4
   CapacitorApp: 9cb31064a6c6bb2b1438583733a7bf45557fc1da
+  CapacitorClipboard: d1f123674cf413125db816a45e8f70e8770972fc
   CapacitorCordova: 63d476958d5022d76f197031e8b7ea3519988c64
   CapacitorFirebaseAuthentication: 2297f469e0f7a51a19446d28c452179675dfc330
   CapacitorFirebaseMessaging: 71ea2cde4484e172de29e4b4e68100c2f84fb441
@@ -194,6 +200,6 @@ SPEC CHECKSUMS:
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   RecaptchaInterop: 7d1a4a01a6b2cb1610a47ef3f85f0c411434cb21
 
-PODFILE CHECKSUM: 8010c8ad412c256734731e27eb2bdff450319dd6
+PODFILE CHECKSUM: b33f744b0f11162a6b56913fa869b092fe516b7f
 
 COCOAPODS: 1.16.2
