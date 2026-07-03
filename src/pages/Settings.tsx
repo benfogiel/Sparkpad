@@ -74,7 +74,7 @@ const Settings: React.FC = () => {
       <IonContent fullscreen scrollY={false}>
         <IonList>
           <IonItem>
-            <IonLabel onClick={() => router.push('/categories-view')}>
+            <IonLabel onClick={() => router.push('/categories-view?from=settings')}>
               Categories
             </IonLabel>
           </IonItem>

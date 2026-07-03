@@ -7,7 +7,7 @@ export interface Reminder {
   category: string;
 }
 
-function toTitleCase(str: string): string {
+export function toTitleCase(str: string): string {
   return str
     .toLowerCase()
     .split(' ')

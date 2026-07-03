@@ -14,7 +14,7 @@ import { FirebaseMessaging } from '@capacitor-firebase/messaging';
 import { Capacitor } from '@capacitor/core';
 
 import { db, auth, messaging } from '../firebase';
-import { Reminder } from '../data/reminders';
+import { Reminder, getDefaultCategories } from '../data/reminders';
 
 const assertUser = () => {
   if (!auth.currentUser) {
@@ -37,6 +37,7 @@ export const addUser = async (firstName: string) => {
     fcmToken: '', // will be updated when notifications are set up
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     createdAt: new Date(),
+    categories: getDefaultCategories(),
     selectedCategories: ['General'],
     notificationFrequency: 2,
   });
@@ -142,6 +143,19 @@ export const getSelectedCategories = async () => {
   const docRef = doc(db, 'users', auth.currentUser!.uid);
   const docSnap = await getDoc(docRef);
   return docSnap.data()?.selectedCategories || [];
+};
+
+export const getCategories = async (): Promise<string[]> => {
+  assertUser();
+  const docRef = doc(db, 'users', auth.currentUser!.uid);
+  const docSnap = await getDoc(docRef);
+  return docSnap.data()?.categories ?? getDefaultCategories();
+};
+
+export const setCategories = async (categories: string[]) => {
+  assertUser();
+  const docRef = doc(db, 'users', auth.currentUser!.uid);
+  await updateDoc(docRef, { categories });
 };
 
 export type NotificationFrequency = 1 | 2 | 3 | 4;
