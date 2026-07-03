@@ -38,6 +38,7 @@ export const addUser = async (firstName: string) => {
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     createdAt: new Date(),
     selectedCategories: ['General'],
+    notificationFrequency: 2,
   });
 };
 
@@ -128,6 +129,27 @@ export const getSelectedCategories = async () => {
   const docRef = doc(db, 'users', auth.currentUser!.uid);
   const docSnap = await getDoc(docRef);
   return docSnap.data()?.selectedCategories || [];
+};
+
+export type NotificationFrequency = 1 | 2 | 3 | 4;
+
+export const getNotificationFrequency = async (): Promise<NotificationFrequency> => {
+  assertUser();
+  const docRef = doc(db, 'users', auth.currentUser!.uid);
+  const docSnap = await getDoc(docRef);
+  const value = docSnap.data()?.notificationFrequency;
+  return value === 2 || value === 3 || value === 4 ? value : 1;
+};
+
+export const setNotificationFrequency = async (frequency: NotificationFrequency) => {
+  assertUser();
+  const docRef = doc(db, 'users', auth.currentUser!.uid);
+  await updateDoc(docRef, {
+    notificationFrequency: frequency,
+    scheduledReminderTimes: [],
+    notificationsSentToday: 0,
+    scheduledRemindersDate: null,
+  });
 };
 
 // ---------------- Recent Reminders ----------------

@@ -29,24 +29,41 @@ interface RecentReminder {
 }
 
 /**
- * Generate a random DateTime between timeLower and timeUpper on the given day.
+ * Generate `count` random DateTimes spread across [timeLower, timeUpper].
+ * Splits the window into `count` equal chunks and picks a random minute in each.
  */
-function generateRandomTimeForDay(
+function generateRandomTimesForDay(
   day: DateTime,
   timeLower: string,
-  timeUpper: string
-): DateTime {
+  timeUpper: string,
+  count: number
+): DateTime[] {
   const [lowerH, lowerM] = timeLower.split(":").map(Number);
   const [upperH, upperM] = timeUpper.split(":").map(Number);
   const lowerTotal = lowerH * 60 + lowerM;
   const upperTotal = upperH * 60 + upperM;
-  const randomMinutes =
-    Math.floor(Math.random() * (upperTotal - lowerTotal + 1)) + lowerTotal;
+  const span = Math.max(0, upperTotal - lowerTotal);
+  const chunkSize = span / count;
+  const dayStart = day.startOf("day");
 
-  return day.startOf("day").plus({
-    hours: Math.floor(randomMinutes / 60),
-    minutes: randomMinutes % 60,
-  });
+  const times: DateTime[] = [];
+  for (let i = 0; i < count; i++) {
+    const chunkStart = lowerTotal + chunkSize * i;
+    const chunkEnd = lowerTotal + chunkSize * (i + 1);
+    const randomMinutes = Math.floor(
+      Math.random() * (chunkEnd - chunkStart) + chunkStart
+    );
+    times.push(dayStart.plus({
+      hours: Math.floor(randomMinutes / 60),
+      minutes: randomMinutes % 60,
+    }));
+  }
+  return times;
+}
+
+function clampNotificationFrequency(value: unknown): number {
+  return typeof value === "number" && Number.isInteger(value) &&
+    value >= 1 && value <= 4 ? value : 1;
 }
 
 async function getRecentReminders(userId: string): Promise<RecentReminder[]> {
@@ -120,41 +137,55 @@ export const scheduleDailyReminder = onSchedule(
         const userNow = now.setZone(userTimezone);
         const todayStart = userNow.startOf("day");
 
-        // 1. Skip if already notified today
-        const lastNotification = userData.lastNotificationDate?.toDate();
-        if (lastNotification && lastNotification >= todayStart.toJSDate()) {
-          continue;
-        }
-
+        const notificationFrequency = clampNotificationFrequency(
+          userData.notificationFrequency
+        );
         const timeLower = userData.timeLower || "08:00";
         const timeUpper = userData.timeUpper || "17:00";
 
-        // 2. Ensure a scheduled time exists for today
-        let scheduledTime: DateTime | null = null;
-        const storedScheduled = userData.scheduledReminderTime?.toDate();
+        // 1. Load or regenerate today's scheduled times
+        const storedDateJS = userData.scheduledRemindersDate?.toDate();
+        const storedDate = storedDateJS ?
+          DateTime.fromJSDate(storedDateJS).setZone(userTimezone) :
+          null;
+        const storedTimesRaw: Timestamp[] = userData.scheduledReminderTimes || [];
+        const isForToday = storedDate &&
+          storedDate >= todayStart &&
+          storedDate < todayStart.plus({days: 1}) &&
+          storedTimesRaw.length === notificationFrequency;
 
-        if (storedScheduled) {
-          const storedDT = DateTime.fromJSDate(storedScheduled).setZone(userTimezone);
-          // Check if the stored time is for today
-          if (storedDT >= todayStart && storedDT < todayStart.plus({days: 1})) {
-            scheduledTime = storedDT;
-          }
-        }
+        let scheduledTimes: DateTime[];
+        let notificationsSentToday: number;
 
-        if (!scheduledTime) {
-          // Generate and persist a random time for today
-          scheduledTime = generateRandomTimeForDay(userNow, timeLower, timeUpper);
+        if (isForToday) {
+          scheduledTimes = storedTimesRaw.map((ts) =>
+            DateTime.fromJSDate(ts.toDate()).setZone(userTimezone)
+          );
+          notificationsSentToday = userData.notificationsSentToday || 0;
+        } else {
+          scheduledTimes = generateRandomTimesForDay(
+            userNow, timeLower, timeUpper, notificationFrequency
+          );
+          notificationsSentToday = 0;
           await userRef.update({
-            scheduledReminderTime: Timestamp.fromDate(scheduledTime.toJSDate()),
+            scheduledReminderTimes: scheduledTimes.map((t) =>
+              Timestamp.fromDate(t.toJSDate())
+            ),
+            scheduledRemindersDate: Timestamp.fromDate(todayStart.toJSDate()),
+            notificationsSentToday: 0,
           });
         }
 
-        // 3. Skip if it's not time yet
-        if (userNow < scheduledTime) {
+        // 2. Skip if all sent today or next one isn't due yet
+        if (notificationsSentToday >= notificationFrequency) {
+          continue;
+        }
+        const nextScheduled = scheduledTimes[notificationsSentToday];
+        if (userNow < nextScheduled) {
           continue;
         }
 
-        // 4. Send notification — fetch a fresh reminder at send time
+        // 3. Send notification — fetch a fresh reminder at send time
         const fcmToken = userData.fcmToken;
         if (!fcmToken) {
           console.log(`No FCM token found for user ${userId}`);
@@ -192,16 +223,20 @@ export const scheduleDailyReminder = onSchedule(
           },
         };
 
-        const notificationDate = Timestamp.fromDate(todayStart.toJSDate());
+        const sentAt = Timestamp.now();
+        const nextSentCount = notificationsSentToday + 1;
         notificationPromises.push(
           messaging
             .send(message)
             .then(async () => {
               console.log(`Notification sent to user ${userId}`);
-              await userRef.update({lastNotificationDate: notificationDate});
+              await userRef.update({
+                notificationsSentToday: nextSentCount,
+                lastNotificationDate: sentAt,
+              });
               await addRecentReminder(userId, {
                 reminder: randomReminder,
-                remindedAt: notificationDate,
+                remindedAt: sentAt,
               });
             })
             .catch((error) => {
