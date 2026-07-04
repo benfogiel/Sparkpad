@@ -1,7 +1,11 @@
 /* ReminderList.css */
 #reminder-list-container ion-item {
-  --background: var(--ion-overlay-background-color);
-  --border-radius: 20px;
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--glass-radius);
+  box-shadow: var(--glass-shadow), var(--glass-highlight);
   --padding-start: 16px;
   --padding-end: 16px;
   margin-bottom: 12px;

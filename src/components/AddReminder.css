@@ -1,7 +1,11 @@
 #add-reminder-container {
   --header-height: 40px;
-  background: var(--ion-overlay-background-color);
-  border-radius: 12px;
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--glass-radius);
+  box-shadow: var(--glass-shadow), var(--glass-highlight);
   padding: 0px 12px 12px 12px;
   margin: 0px 12px 12px 12px;
   display: flex;
@@ -25,13 +29,12 @@
 }
 
 #add-reminder-container ion-textarea {
-  background: var(--ion-overlay-background-color);
+  background: transparent;
   padding-right: 30px;
 }
 
 #add-reminder-container ion-button {
-  width: 50px;
-  height: 5px;
+  min-width: 64px;
   align-self: flex-end;
 }
 
@@ -46,15 +49,11 @@ ion-modal {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--ion-overlay-background-color);
+  background: transparent;
 }
 
 .modal-content ion-list {
   width: 100%;
   background: transparent;
   padding-top: 24px;
-}
-
-.modal-content ion-item {
-  --background: var(--ion-overlay-background-color);
 }

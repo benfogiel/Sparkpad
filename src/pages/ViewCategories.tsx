@@ -98,7 +98,7 @@ const ViewCategories: React.FC = () => {
 
   return (
     <IonPage id="categories-view">
-      <IonHeader translucent>
+      <IonHeader>
         <div className="page-header">
           {fromSettings ? (
             <>
@@ -115,7 +115,7 @@ const ViewCategories: React.FC = () => {
         </div>
       </IonHeader>
 
-      <IonContent fullscreen>
+      <IonContent>
         <IonRefresher slot="fixed" onIonRefresh={refresh}>
           <IonRefresherContent></IonRefresherContent>
         </IonRefresher>

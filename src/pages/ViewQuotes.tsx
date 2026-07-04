@@ -79,7 +79,7 @@ const ViewQuotes: React.FC = () => {
         </div>
       </IonHeader>
 
-      <IonContent fullscreen>
+      <IonContent>
         <IonRefresher slot="fixed" onIonRefresh={refresh}>
           <IonRefresherContent></IonRefresherContent>
         </IonRefresher>

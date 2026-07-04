@@ -108,7 +108,7 @@ const ViewReminders: React.FC = () => {
 
   return (
     <IonPage id="reminders-view">
-      <IonHeader translucent>
+      <IonHeader>
         <div className="page-header view-reminders-header">
           <IonText>
             <p style={{ fontSize: '10px', marginBottom: '0px', marginTop: '0px' }}>
@@ -124,7 +124,7 @@ const ViewReminders: React.FC = () => {
         </div>
       </IonHeader>
 
-      <IonContent fullscreen className="ion-padding">
+      <IonContent className="ion-padding">
         <IonRefresher slot="fixed" onIonRefresh={refresh}>
           <IonRefresherContent></IonRefresherContent>
         </IonRefresher>

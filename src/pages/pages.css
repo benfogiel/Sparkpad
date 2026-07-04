@@ -5,16 +5,20 @@
   width: calc(100% - 50px); /* Subtract the left and right margin */
 }
 
-.page-header {
-  padding: env(safe-area-inset-top) 16px 10px;
-  position: relative;
-  display: flex;
-  align-items: center;
-}
+/* Shared glass panel treatment for grouped lists */
 
-.input-field {
-  --background: var(--ion-overlay-background-color);
-  --border-radius: 12px;
+#settings-view ion-list,
+#categories-view ion-list,
+#quotes-view ion-accordion-group {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--glass-radius);
+  box-shadow: var(--glass-shadow), var(--glass-highlight);
+  margin: 16px;
+  padding: 0;
+  overflow: hidden;
 }
 
 /* Settings */
@@ -65,48 +69,16 @@
 
 /* ViewReminders */
 
-#reminders-view ion-content {
-  --background: var(--ion-background-color);
-}
-
 #reminders-view .view-reminders-header {
   justify-content: space-between;
   align-items: flex-start;
-  padding-bottom: 30px;
+  padding-bottom: 12px;
 }
 
 #reminders-view .reminder-container {
   display: flex;
   flex-direction: column;
   gap: 16px;
-}
-
-/* ViewCategories */
-
-#categories-view ion-content {
-  --background: var(--ion-overlay-background-color);
-}
-
-#categories-view ion-button {
-  --border-radius: 20px;
-}
-
-#categories-view ion-item {
-  --background: var(--ion-overlay-background-color);
-}
-
-/* ViewQuotes */
-
-#quotes-view ion-content {
-  --background: var(--ion-overlay-background-color);
-}
-
-#quotes-view ion-accordion ion-item[slot='header'] {
-  --background: var(--ion-overlay-background-color);
-}
-
-#quotes-view ion-accordion ion-item {
-  --background: var(--ion-background-color);
 }
 
 /* Auth */
